@@ -1,0 +1,37 @@
+[
+    {
+        "id": 1,
+        "nombre": "Camiseta Deportiva",
+        "categoria": "Ropa",
+        "stock": 25,
+        "imagen": "https://example.com/img/camiseta.jpg"
+    },
+    {
+        "id": 2,
+        "nombre": "Zapatillas Running",
+        "categoria": "Calzado",
+        "stock": 10,
+        "imagen": "https://example.com/img/zapatillas.jpg"
+    },
+    {
+        "id": 3,
+        "nombre": "Mochila Escolar",
+        "categoria": "Accesorios",
+        "stock": 40,
+        "imagen": "https://example.com/img/mochila.jpg"
+    },
+    {
+        "id": 4,
+        "nombre": "Auriculares Bluetooth",
+        "categoria": "Electrónica",
+        "stock": 15,
+        "imagen": "https://example.com/img/auriculares.jpg"
+    },
+    {
+        "id": 5,
+        "nombre": "Botella de Agua",
+        "categoria": "Hogar",
+        "stock": 60,
+        "imagen": "https://example.com/img/botella.jpg"
+    }
+]
