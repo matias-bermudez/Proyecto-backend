@@ -53,7 +53,7 @@ class ProductDao {
         const index = prods.findIndex((g) => (g.id === id))
 
         if(index === -1) {
-            throw new Error('Juego no encontrado')
+            throw new Error('Producto no encontrado')
         }
 
         const updatedProd = {
@@ -71,7 +71,7 @@ class ProductDao {
         const filteredProds = prods.filter((g) => g.id !== id)
 
         if(prods.length === filteredProds.length) {
-            throw new Error('Juego no encontrado')
+            throw new Error('Producto no encontrado')
         } 
         await this.#saveFile(filteredProds)
     }
