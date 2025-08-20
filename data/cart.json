@@ -1,0 +1,30 @@
+[
+    {
+        "id": 1,
+        "prods": [],
+        "cantidad": 0,
+        "costo": 0,
+        "pagado": false
+    },
+    {
+        "id": 2,
+        "prods": [],
+        "cantidad": 0,
+        "costo": 0,
+        "pagado": false
+    },
+    {
+        "id": 3,
+        "prods": [],
+        "cantidad": 0,
+        "costo": 0,
+        "pagado": true
+    },
+    {
+        "id": 4,
+        "prods": [],
+        "cantidad": 0,
+        "costo": 0,
+        "pagado": false
+    }
+]
