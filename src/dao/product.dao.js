@@ -11,11 +11,11 @@ class ProductDao {
             const data = await fs.readFile(this.filePath, 'utf-8')
             return JSON.parse(data)
         } catch (err) {
-            if(error.code === 'ENOENT') {
+            if(err.code === 'ENOENT') {
                 await this.#saveFile([])
                 return []
             }
-            throw error
+            throw err
         }
     }
 
@@ -51,11 +51,6 @@ class ProductDao {
     async update(id, updateFields) {
         const prods = await this.#readFile()
         const index = prods.findIndex((g) => (g.id === id))
-
-        if(index === -1) {
-            throw new Error('Producto no encontrado')
-        }
-
         const updatedProd = {
             ...prods[index],
             updateFields,
