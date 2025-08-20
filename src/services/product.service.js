@@ -1,3 +1,5 @@
+const ProductDao = require("../dao/product.dao")
+
 class GamesService {
     constructor(prodssDao) {
         this.prodsDao = prodsDao
@@ -8,11 +10,10 @@ class GamesService {
     }
 
     async getProdByID(id) {
-        if(id) {
-        return await this.prodsDao.getByID(id)
-        } else {
+        if(!id) {
             throw new Error('Id Requerido')
         }
+        return await this.prodsDao.getByID(id)
     }
 
     async createProd(prod) {
@@ -27,9 +28,8 @@ class GamesService {
         const missingAtributes = requiredAtributes.filter((atribute) => !game[atribute])
         if(missingAtributes.length > 0) {
             throw new Error(`Campos faltantes: ${missingAtributes}`)
-        } else {
-            await this.prodsDao.create(prod)
         }
+        return await this.prodsDao.create(prod)
     }
 
     async updateProd(id, updateFields) {
@@ -42,4 +42,13 @@ class GamesService {
         }
         return await this.prodsDao.update(id, updateFields)
     }
+
+    async deleteProd(id) {
+        if(!id) {
+            throw new Error('id requerido')
+        }
+        return await this.prodsDao.delete(id)
+    }
 }
+
+module.exports = ProductDao
