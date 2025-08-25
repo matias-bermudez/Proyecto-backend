@@ -1,37 +1,58 @@
 [
-    {
-        "id": 1,
-        "nombre": "Camiseta Deportiva",
-        "categoria": "Ropa",
-        "stock": 25,
-        "imagen": "https://example.com/img/camiseta.jpg"
-    },
-    {
-        "id": 2,
-        "nombre": "Zapatillas Running",
-        "categoria": "Calzado",
-        "stock": 10,
-        "imagen": "https://example.com/img/zapatillas.jpg"
-    },
-    {
-        "id": 3,
-        "nombre": "Mochila Escolar",
-        "categoria": "Accesorios",
-        "stock": 40,
-        "imagen": "https://example.com/img/mochila.jpg"
-    },
-    {
-        "id": 4,
-        "nombre": "Auriculares Bluetooth",
-        "categoria": "Electrónica",
-        "stock": 15,
-        "imagen": "https://example.com/img/auriculares.jpg"
-    },
-    {
-        "id": 5,
-        "nombre": "Botella de Agua",
-        "categoria": "Hogar",
-        "stock": 60,
-        "imagen": "https://example.com/img/botella.jpg"
-    }
+  {
+    "id": "1",
+    "nombre": "Camiseta Deportiva",
+    "categoria": "Ropa",
+    "stock": 13,
+    "imagen": "https://example.com/img/camiseta.jpg",
+    "precio": 2422
+  },
+  {
+    "id": "2",
+    "nombre": "Llantas de fuego",
+    "categoria": "Calzado",
+    "stock": 10,
+    "imagen": "https://example.com/img/zapatillas.jpg",
+    "precio": 233
+  },
+  {
+    "id": 3,
+    "nombre": "Mochila Escolar",
+    "categoria": "Accesorios",
+    "stock": 40,
+    "imagen": "https://example.com/img/mochila.jpg",
+    "precio": 111
+  },
+  {
+    "id": 5,
+    "nombre": "Botella de Agua",
+    "categoria": "Hogar",
+    "stock": 60,
+    "imagen": "https://example.com/img/botella.jpg",
+    "precio": 2665
+  },
+  {
+    "nombre": "Gorra Negra",
+    "categoria": "Ropa",
+    "stock": 2,
+    "imagen": "https://example.com/gorra.jpg",
+    "id": "af1b50c3-63fc-4fbf-895e-3d2b26c0e2c7",
+    "precio": 77
+  },
+  {
+    "nombre": "Moto Gold",
+    "categoria": "Celulares",
+    "stock": 15,
+    "imagen": "https://example.com/gorra.jpg",
+    "precio": 29,
+    "id": "2c039387-8623-464f-9632-0d199ef444d1"
+  },
+  {
+    "nombre": "Remera Test",
+    "categoria": "Ropa",
+    "stock": 10,
+    "imagen": "https://example.com/remera.jpg",
+    "precio": 500,
+    "id": "d3a36fa0-4b09-41c8-a8a6-9182bf783c66"
+  }
 ]

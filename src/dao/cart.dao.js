@@ -3,7 +3,7 @@ const crypto = require('crypto')
 
 class CartDao {
     constructor(filePath) {
-        this.filePath
+        this.filePath = filePath
     }
 
     async #readFile() {
@@ -20,7 +20,7 @@ class CartDao {
     }
 
     async #saveFile(carts) {
-        await this.writeFile(this.filePath, JSON.stringify(carts, null, 2), 'utf-8')
+        await fs.writeFile(this.filePath, JSON.stringify(carts, null, 2), 'utf-8')
     }
 
     #generateID() {
@@ -34,14 +34,18 @@ class CartDao {
 
     async getByID(id) {
         const carts = await this.getAll()
-        const cart = cart.find((c) => c.id === id)
+        const cart = carts.find((c) => c.id == id)
         if(cart != null) {
             return cart
         }
     }
 
     async create(cart) {
-        const newCart = {...cart, id: this.#generateID()}
+        const newCart = 
+            {
+                ...cart,
+                id: this.#generateID(),
+            }
         const carts = await this.getAll()
         carts.push(newCart)
         await this.#saveFile(carts)
@@ -50,10 +54,10 @@ class CartDao {
 
     async update(id, updateAtributes) {
         const carts = await this.getAll()
-        const index = carts.findIndex((c) => c.id === id)
+        const index = carts.findIndex((c) => c.id == id)
         const updatedCart = {
             ...carts[index],
-            updateAtributes,
+            ...updateAtributes,
             id
         }
         carts[index] = updatedCart
