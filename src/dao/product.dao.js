@@ -32,16 +32,16 @@ class ProductDao {
         return JSON.parse(JSON.stringify(prods))
     }
 
-    async getById(id) {
+    async getByID(id) {
         const prods = await this.#readFile()
-        const prod = prods.find((prod) => prod.id === id)
+        const prod = prods.find((prod) => prod.id == id)
         if ( prod != null ) {   
             return prod
         }
     }
 
     async create(prod) {
-        const prods = this.#readFile()
+        const prods = await this.#readFile()
         const newProd = {...prod, id: this.#generateID()}
         prods.push(newProd)
         await this.#saveFile(prods)
@@ -50,10 +50,10 @@ class ProductDao {
 
     async update(id, updateFields) {
         const prods = await this.#readFile()
-        const index = prods.findIndex((g) => (g.id === id))
+        const index = prods.findIndex((g) => (g.id == id))
         const updatedProd = {
             ...prods[index],
-            updateFields,
+            ...updateFields,
             id
         }
         prods[index] = updatedProd
