@@ -1,0 +1,13 @@
+<div class="userBody">
+    <div>
+        <p>Lista de Productos</p>
+    </div>
+    <div>
+        <ul>
+            {{#each products}}
+            <li>{{nombre}} - ${{precio}}</li>
+            {{/each}}
+        </ul>
+    </div>
+    {{> footer}}
+</div>
