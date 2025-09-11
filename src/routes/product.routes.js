@@ -12,7 +12,15 @@ const cartDao = new CartDao(config.getFilePath('cart.json'));
 const service = new ProductService(dao, cartDao); 
 const controller = new ProductController(service);
 
-router.get('/', controller.getProds);
+router.get('/', async (req, res, next) => {
+    try {
+        const products = await service.getAllProds();
+        return res.render('pages/products', {products});
+    } catch (err) {
+        next(err);
+    }
+});
+
 router.get('/:id', controller.getProdByID);
 router.post('/', controller.createProd);
 router.put('/:id', controller.updateProd);
