@@ -46,7 +46,7 @@ class ProductService {
         try {
             const carts = await this.cartDao.getAll()
             for (const cart of carts) {
-                const items = Array.isArray(cart.prods) ? cart.prods : [];
+                const items = Array.isArray(cart.prods) ? cart.prods : []
                 const updateFieldsCart = {}
                 if(items.findIndex((p) => p.id == id) !== -1) {
                     let costo = 0

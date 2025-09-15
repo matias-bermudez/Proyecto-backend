@@ -1,7 +1,7 @@
 const path = require('path')
 require('dotenv').config()
 
-const ROOT = path.resolve(__dirname, '..');
+const ROOT = path.resolve(__dirname, '..')
 
 const paths = {
     root: ROOT,
@@ -9,7 +9,7 @@ const paths = {
     views: path.join(ROOT, 'src', 'views'),
     layouts: path.join(ROOT, 'src', 'views', 'layouts'),
     partials: path.join(ROOT, 'src', 'views', 'partials'),
-};
+}
 
 module.exports = {
     PORT: process.env.PORT || 8080,
