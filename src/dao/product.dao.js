@@ -61,9 +61,8 @@ class ProductDao {
         return updatedProd
     }
 
-    // ProductDao.js
     async delete(id) {
-        const prods = await this.#readFile();
+        const prods = await this.#readFile()
         const idx = prods.findIndex(p => String(p.id) === String(id))
         if (idx === -1) return false
         prods.splice(idx, 1)
