@@ -38,21 +38,32 @@ class ProductController {
     createProd = async (req, res, next) => {
         try {
             const newProd = await this.prodsService.createProd(req.body)
+            const io = req.app.get('io');
+            const all = await this.prodsService.getAllProds();
+            io.emit('products:update', all);
             res.json(newProd)
         }   catch (err) {
             next(err)
         }
     }
 
+    // Controller
     deleteProd = async (req, res, next) => {
         try {
-            const { id } = req.params
-            const deletedProd = this.prodsService.deleteProd(id)
-            res.json({id: deletedProd, msj: 'producto eliminado'})
-        }   catch (err) {
-            next(err)
+            const { id } = req.params;
+            const ok = await this.prodsService.deleteProd(id);  
+            if (!ok) return res.status(404).json({ msj: 'prod no encontrado' });
+            const io = req.app.get('io');
+            if (io) {
+                const all = await this.prodsService.getAllProds();
+                io.emit('products:update', all);
+            }
+            return res.status(204).end(); 
+        } catch (err) {
+            next(err);
         }
-    }
+    };
+
 }
 
 module.exports = ProductController

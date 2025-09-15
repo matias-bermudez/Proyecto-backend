@@ -1,13 +1,16 @@
-<div class="userBody">
-    <div>
-        <p>Lista de Productos</p>
-    </div>
-    <div>
-        <ul>
-            {{#each products}}
-            <li>{{nombre}} - ${{precio}}</li>
-            {{/each}}
-        </ul>
+<div>   
+    {{> header}} 
+    <div class="userBody" style="min-height: 85vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div>
+            <p>Lista de Productos</p>
+        </div>
+        <div>
+            <ul>
+                {{#each products}}
+                <li>{{nombre}} - ${{precio}}</li>
+                {{/each}}
+            </ul>
+        </div> 
     </div>
     {{> footer}}
 </div>
