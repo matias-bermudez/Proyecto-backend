@@ -19,6 +19,9 @@ Se incluye una API mínima para crear/eliminar productos (usada por los formular
 ```bash
 # 1) Instalar dependencias
 npm install
+npm i express-handlebars
+npm i socket.io
+
 
 # 2) (Opcional) crear .env con el puerto
 # PORT=8080
