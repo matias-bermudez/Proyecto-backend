@@ -13,14 +13,14 @@
         </form>
 
         <ul id="prodList">
-          {{#each products}}
-            <li data-id="{{id}}">
-              {{nombre}} — ${{precio}}
-              <button data-del="{{id}}" style="margin-left:8px">Eliminar</button>
-            </li>
-          {{else}}
-            <li>No hay productos.</li>
-          {{/each}}
+            {{#each products}}
+                <li data-id="{{id}}">
+                {{nombre}} — ${{precio}}
+                <button data-del="{{id}}" style="margin-left:8px">Eliminar</button>
+                </li>
+            {{else}}
+                <li>No hay productos.</li>
+            {{/each}}
         </ul>
     </section>
     {{> footer}}
