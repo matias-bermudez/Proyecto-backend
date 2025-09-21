@@ -44,7 +44,7 @@ app.get('/', (_req, res) =>
 app.get('/realtimeproducts', async (req, res, next) => {
   try {
     const products = await service.getAllProds()
-    res.render('pages/realTimeProducts', { products })
+    res.render('pages/realTimeProds', { products })
   } catch (e) { next(e) }
 })
 

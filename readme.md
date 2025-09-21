@@ -29,3 +29,8 @@ npm i socket.io
 # 3) Arrancar el proyecto
 npm start
 # → http://localhost:8080
+
+
+mongodb+srv://matiasbermudezmunoz_db_user:O6Oj13Rf9XrGk7vU@cluster001.hiliizx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster001
+
+mongodb+srv://matiasbermudezmunoz_db_user:O6Oj13Rf9XrGk7vU@cluster001.hiliizx.mongodb.net/<DB_NAME>?retryWrites=true&w=majority&appName=Cluster001
