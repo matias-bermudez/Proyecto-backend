@@ -1,33 +1,84 @@
-# Proyecto Backend — Express + Handlebars (HBS) + WebSockets (Socket.IO)
+# 🛒 Proyecto Backend — Express + Handlebars + MongoDB + Socket.IO
 
-Aplicación Node.js que renderiza **HTML** con **Handlebars**, usa **Express** como framework web y **Socket.IO** para **actualización en tiempo real** de productos en la vista `/realtimeproducts`.  
-Se incluye una API mínima para crear/eliminar productos (usada por los formularios del sitio).
+Aplicación Node.js que renderiza **HTML con Handlebars**, usa **Express** como framework web, **MongoDB (Mongoose)** para persistencia de datos y **Socket.IO** para actualización en tiempo real.  
+Se implementan **productos y carritos** con todas las operaciones CRUD.
 
 ---
 
 ## 🚀 Stack
 - **Node.js + Express**
 - **Handlebars (HBS)** para vistas (SSR)
+- **MongoDB Atlas + Mongoose**
 - **Socket.IO** (WebSockets) para tiempo real
+- **Dotenv** para variables de entorno
 - **JavaScript** (cliente y servidor)
-- **JSON** como “DB” simple (`/data/product.json`)
 
 ---
 
-## ▶️ Cómo ejecutar
+## ▶️ Ejecución
 
 ```bash
 # 1) Instalar dependencias
 npm install
 
-# 2) (Opcional) crear .env con el puerto
-# PORT=8080
+# 2) Configurar variables en .env
+MONGO_URI=mongodb+srv://<db_usr>:<password>@cluster001.hiliizx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster001
+PORT=8080
+DB_NAME=proyecto-backend
 
-# 3) Arrancar el proyecto
+# 3) Levantar el servidor
 npm start
-# → http://localhost:8080
 
+## 🌐 Vistas (SSR con Handlebars)
 
-mongodb+srv://matiasbermudezmunoz_db_user:O6Oj13Rf9XrGk7vU@cluster001.hiliizx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster001
+| Ruta                  | Descripción |
+|-----------------------|-------------|
+| `/`                   | Página de inicio |
+| `/products`           | Lista paginada de productos|
+| `/products/view/:pid` | Detalle de producto|
+| `/realtimeproducts`   | Gestión en tiempo real de productos|
+| `/carts`              | Obtiene (o crea) un carrito|
+| `/carts/view/:cid`    | Vista de carrito con productos|
+| `/carts/:cid/finalize`| Finalizar carrito|
 
-mongodb+srv://matiasbermudezmunoz_db_user:O6Oj13Rf9XrGk7vU@cluster001.hiliizx.mongodb.net/<DB_NAME>?retryWrites=true&w=majority&appName=Cluster001
+---
+
+## 📡 API Endpoints
+
+### 🔹 Productos (`/api/products`)
+- **GET `/api/products`**  
+  Lista de productos con soporte de filtros:
+  - `limit` → cantidad por página  
+  - `page` → número de página  
+  - `query` → `category:<nombre>` o `availability:true/false`  
+  - `sort` → ordenar por precio `asc` o `desc`  
+
+  **Ejemplo:**  
+
+- **GET `/api/products/:pid`** → Detalle de un producto  
+- **POST `/api/products`** → Crear producto  
+- **PUT `/api/products/:pid`** → Actualizar producto  
+- **DELETE `/api/products/:pid`** → Eliminar producto  
+
+Cada cambio emite `products:update` vía **Socket.IO** a los clientes conectados.
+
+---
+
+### 🔹 Carritos (`/api/carts`)
+- **POST `/api/carts`** → Crear un carrito  
+- **GET `/api/carts/:cid`** → Obtener carrito con productos **populate**  
+- **PUT `/api/carts/:cid`** → Reemplazar todos los productos  
+- **PUT `/api/carts/:cid/products/:pid`** → Actualizar cantidad de un producto (o agregar si no existe)  
+- **DELETE `/api/carts/:cid/products/:pid`** → Eliminar un producto específico  
+- **DELETE `/api/carts/:cid`** → Vaciar carrito  
+
+---
+
+## ⚡ WebSockets (Socket.IO)
+
+- Canal: `products:update`  
+- Se emite cada vez que se crea/actualiza/elimina un producto.  
+- El cliente (`/realtimeproducts`) re-renderiza la lista automáticamente.
+
+---
+

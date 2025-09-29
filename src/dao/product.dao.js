@@ -1,75 +1,49 @@
-const fs = require('fs').promises
-const crypto = require('crypto')
+import { ProductModel } from '../db/models/product.model.js'
 
-class ProductDao {
-    constructor(filePath) {
-        this.filePath = filePath
-    }
-
-    async #readFile() {
-        try {
-            const data = await fs.readFile(this.filePath, 'utf-8')
-            return JSON.parse(data)
-        } catch (err) {
-            if(err.code === 'ENOENT') {
-                await this.#saveFile([])
-                return []
-            }
-            throw err
-        }
-    }
-
-    async #saveFile(prods) {
-        await fs.writeFile(this.filePath, JSON.stringify(prods, null, 2), 'utf-8')
-    }
-
-    #generateID() {
-        return crypto.randomUUID()
-    }
+export default class ProductDao {
+    constructor() {}
 
     async getAll() {
-        const prods = await this.#readFile()
-        return JSON.parse(JSON.stringify(prods))
+        return ProductModel.find({}).lean()
     }
 
     async getByID(id) {
-        const prods = await this.#readFile()
-        const prod = prods.find((prod) => prod.id == id)
-        if ( prod != null ) {   
-            return prod
-        }
+        return ProductModel.findById(id).lean()
     }
 
     async create(prod) {
-        const prods = await this.#readFile()
-        const newProd = {...prod, id: this.#generateID()}
-        prods.push(newProd)
-        await this.#saveFile(prods)
-        return newProd
+        const { name, category, price, stock } = prod
+        const doc = await ProductModel.create({ name, category, price, stock })
+        return doc.toObject()
     }
 
     async update(id, updateFields) {
-        const prods = await this.#readFile()
-        const index = prods.findIndex((g) => (g.id == id))
-        const updatedProd = {
-            ...prods[index],
-            ...updateFields,
-            id
+        const allowed = ['name', 'category', 'price', 'stock']
+        const patch = {}
+        for (const k of allowed) {
+            if (k in updateFields) {
+                patch[k] = updateFields[k]
+            }
         }
-        prods[index] = updatedProd
-        await this.#saveFile(prods)
-        return updatedProd
+        return ProductModel.findByIdAndUpdate(id, patch, { new: true, runValidators: true }).lean()
     }
 
     async delete(id) {
-        const prods = await this.#readFile()
-        const idx = prods.findIndex(p => String(p.id) === String(id))
-        if (idx === -1) return false
-        prods.splice(idx, 1)
-        await this.#saveFile(prods)
-        return true   
+        const res = await ProductModel.findByIdAndDelete(id)
+        return !!res   
+    }
+
+    async getPaged(filter, { limit, page, sort }) {
+        const [docs, totalDocs] = await Promise.all([
+            ProductModel.find(filter).sort(sort).skip((page - 1) * limit).limit(limit).lean(),
+            ProductModel.countDocuments(filter)
+        ])
+        const totalPages = Math.max(Math.ceil(totalDocs / limit), 1)
+        return { docs, totalDocs, totalPages }
+    }
+
+    async getDistinctCategories() {
+        return ProductModel.distinct('category')
     }
 
 }
-
-module.exports = ProductDao

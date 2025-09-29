@@ -1,0 +1,219 @@
+{{> header}}
+
+<h1>Carrito {{cart._id}}</h1>
+
+{{#if cart.products.length}}
+  <table>
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th>Precio</th>
+        <th>Cant.</th>
+        <th>Subtotal</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each cart.products}}
+        <tr>
+          <td>{{this.product.name}}</td>
+          <td>${{this.product.price}}</td>
+          <td>
+            <input type="number" min="1" value="{{this.quantity}}"
+              data-pid="{{this.product._id}}" class="qty-input" />
+            <button class="btn-set" data-pid="{{this.product._id}}">Set</button>
+          </td>
+          <td>${{this.subtotal}}</td>
+          <td>
+            <button class="btn-del" data-pid="{{this.product._id}}">
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+  <p><strong>Total:</strong> ${{total}}</p>
+  <div class="cart-actions">
+    <button id="btn-empty">Vaciar carrito</button>
+    <button id="btn-finalize">Finalizar compra</button>
+  </div>
+{{else}}
+  <p>El carrito está vacío.</p>
+{{/if}}
+
+{{> footer}}
+
+<script>
+  
+
+  (async function(){
+    const cid = "{{cart._id}}"
+
+    document.getElementById('btn-finalize')?.addEventListener('click', async () => {
+  try {
+    const res = await fetch(`/carts/${cid}/finalize`, { method: 'POST' });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      alert(data?.error || 'No se pudo finalizar el carrito');
+      return;
+    }
+
+    alert('✅ Compra finalizada');
+    // Te redirige a /carts (crea uno nuevo o reutiliza la cookie).
+    location.href = '/carts';
+  } catch (err) {
+    alert('Error de red: ' + err.message);
+  }
+});
+
+
+    document.querySelectorAll('.btn-del').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const pid = btn.dataset.pid
+        await fetch(`/api/carts/${cid}/products/${pid}`, { method: 'DELETE' })
+        location.reload()
+      })
+    })
+
+    document.querySelectorAll('.btn-set').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const pid = btn.dataset.pid
+        const input = document.querySelector(`.qty-input[data-pid="${pid}"]`)
+        const quantity = parseInt(input.value)
+        await fetch(`/api/carts/${cid}/products/${pid}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ quantity })
+        })
+        location.reload()
+      })
+    })
+
+    document.getElementById('btn-empty')?.addEventListener('click', async () => {
+      await fetch(`/api/carts/${cid}`, { method: 'DELETE' })
+      location.reload()
+    })
+  })();
+</script>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f8f8f8;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  h1 {
+    text-align: center;
+    margin: 16px 0;
+  }
+
+  p { margin: 12px 0; }
+
+  table {
+    width: 100%;
+    max-width: 900px;
+    background: #fff;
+    border-radius: 8px;
+    border-collapse: collapse;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+
+  thead {
+    background: #f1f3f5;
+  }
+
+  th, td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+  }
+
+  th { font-weight: 600; color: #333; }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .qty-input {
+    width: 72px;
+    padding: 6px 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-right: 8px;
+  }
+
+  .btn-set,
+  .btn-del,
+  #btn-empty {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.02s;
+  }
+
+  .btn-del {
+    background: #dc3545;
+  }
+
+  #btn-empty {
+    background: #6c757d;
+  }
+
+  .btn-set:hover { background: #005ec2; }
+  .btn-del:hover { background: #b02a37; }
+  #btn-empty:hover { background: #545b62; }
+
+  .btn-set:active,
+  .btn-del:active,
+  #btn-empty:active {
+    transform: translateY(1px);
+  }
+
+  .cart-footer {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 12px 0 24px;
+    padding: 0 2px;
+  }
+
+  .cart-footer strong {
+    font-size: 16px;
+    color: #222;
+  }
+
+  .empty-state {
+    background: #fff;
+    padding: 16px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    text-align: center;
+  }
+
+  @media (max-width: 600px) {
+    table {
+      font-size: 13px;
+    }
+    th, td {
+      padding: 10px;
+    }
+    .cart-footer {
+      flex-direction: column; gap: 10px; align-items: flex-start;
+    }
+  }
+</style>
+
