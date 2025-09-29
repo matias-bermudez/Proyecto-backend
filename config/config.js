@@ -1,9 +1,14 @@
-const path = require('path')
-require('dotenv').config()
+import path from 'path'
+import { fileURLToPath } from 'url'
+import dotenv from 'dotenv'
 
+dotenv.config()
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 const ROOT = path.resolve(__dirname, '..')
 
-const paths = {
+export const paths = {
     root: ROOT,
     public: path.join(ROOT, 'public'),
     views: path.join(ROOT, 'src', 'views'),
@@ -11,8 +16,8 @@ const paths = {
     partials: path.join(ROOT, 'src', 'views', 'partials'),
 }
 
-module.exports = {
-    PORT: process.env.PORT || 8080,
-    getFilePath: (filename) => path.join(__dirname, `../data/${filename}`),
-    paths
+export const PORT = process.env.PORT || 8080
+
+export function getFilePath(filename) {
+    return path.join(__dirname, `../data/${filename}`)
 }

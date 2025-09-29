@@ -1,70 +1,54 @@
-const AppError = require('../utils/appError')
-
-class CartService {
-    constructor(cartDao, productDao) {
+export default class CartService {
+    constructor(cartDao) {
         this.cartDao = cartDao
-        this.prodsDao = productDao
     }
 
     async getAll() {
         return await this.cartDao.getAll()
     }
 
-    async getByID(id) {
-        if (!id) throw new AppError('Id requerido', 400)
-        return await this.cartDao.getByID(id)
+    async getCartByID(id, { populated = false } = {}) {
+        if (populated) {
+            return this.cartDao.getByIDPopulated(id)
+        } else {
+            return this.cartDao.getByID(id)
+        }
     }
 
-    async create(cart) {
-        if (!cart || !Array.isArray(cart.prods)) {
-            throw new AppError('Formato de carrito inválido (prods requerido)', 400)
-        }
-        let costo = 0
-        let cantProds = 0
-        for( const prod of cart.prods) {
-            const finalProd = await this.prodsDao.getByID(prod.id)
-            if (!finalProd) {
-                throw new AppError(`Producto ${prod.id} no encontrado`, 404)
-            }
-            costo += (finalProd.precio * prod.quantity)
-            cantProds += prod.quantity
-        }
-        const finalCart = {
-            "prods": cart.prods,
-            "costo": costo,
-            "cantidad": cantProds
-        }
-        return await this.cartDao.create(finalCart)
+    async setProductQuantity(cid, pid, quantity) {
+        return this.cartDao.setProductQuantity(cid, pid, quantity)
     }
 
-    async update(id, updateFields) {
-        if (!id) throw new AppError('Id requerido', 400)
-        const exists = await this.cartDao.getByID(id)
-        if (!exists) throw new AppError('Carrito no encontrado', 404)
-        if(updateFields.prods) {
-            let costo = 0
-            let cantProds = 0
-            for( const prod of updateFields.prods) {
-                const finalProd = await this.prodsDao.getByID(prod.id)
-                if (!finalProd) {
-                    throw new AppError(`Producto ${prod.id} no encontrado`, 404)
-                }
-                costo += (finalProd.precio * prod.quantity)
-                cantProds += prod.quantity
-            } 
-            updateFields.costo = costo
-            updateFields.cantidad = cantProds
-        }
-        return await this.cartDao.update(id, updateFields)
+    async createCart(initial = {}) {
+        return this.cartDao.create(initial)
     }
 
-    async delete(id) {
-        if (!id) throw new AppError('Id requerido', 400)
-        const ok = await this.cartDao.delete(id)
-        if (!ok) throw new AppError('Carrito no encontrado', 404)
-        return id
+    async removeProduct(cid, pid) {
+        return this.cartDao.removeProduct(cid, pid)
     }
+
+    async emptyCart(cid) {
+        return this.cartDao.empty(cid)
+    }
+
+    async deleteCart(cid) {
+        return this.cartDao.deleteCart(cid)
+    }
+
+    async finalizeCart(cid) {
+        const cart = await this.cartDao.getByID(cid);
+        if (!cart) {
+            return { ok: false, code: 404, msg: 'Carrito no encontrado' };
+        }
+        if (cart.status === 'closed') {
+            return { ok: false, code: 409, msg: 'El carrito ya fue finalizado' };
+        }
+        const hasItems = Array.isArray(cart.products) && cart.products.length > 0;
+        if (!hasItems) {
+            return { ok: false, code: 409, msg: 'No se puede finalizar un carrito vacío' };
+        }
+        await this.cartDao.setStatusClosed(cid);
+        return { ok: true };
+    }
+
 }
-
-module.exports = CartService
-

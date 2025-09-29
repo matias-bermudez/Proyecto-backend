@@ -14,7 +14,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/matias-bermudez/Proyecto-backend/issues"
   },
@@ -23,6 +23,7 @@
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "express-handlebars": "^8.0.3",
+    "mongoose": "^8.18.2",
     "socket.io": "^4.8.1"
   }
 }

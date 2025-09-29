@@ -1,0 +1,327 @@
+<div>
+  {{> header}}
+  <h1>Productos</h1>
+
+  <form id="filters" class="filters">
+    <div class="f-item">
+    <label>Categoría</label>
+    <select name="category">
+      <option value="" {{#unless currCategory}}selected{{/unless}}>Todas</option>
+      {{#each categories}}
+        <option value="{{this}}" {{#if (eq ../currCategory this)}}selected{{/if}}>{{this}}</option>
+      {{/each}}
+    </select>
+  </div>
+
+    <div class="f-item">
+      <label>Disponibilidad</label>
+      <select name="availability">
+        <option value="" {{#unless currAvailability}}selected{{/unless}}>—</option>
+        <option value="true"  {{#if (eq currAvailability "true")}}selected{{/if}}>Con stock</option>
+        <option value="false" {{#if (eq currAvailability "false")}}selected{{/if}}>Sin stock</option>
+      </select>
+    </div>
+
+    <div class="f-item">
+      <label>Orden</label>
+      <select name="sort">
+        <option value="" {{#unless currSort}}selected{{/unless}}>—</option>
+        <option value="asc"  {{#if (eq currSort "asc")}}selected{{/if}}>Precio ↑</option>
+        <option value="desc" {{#if (eq currSort "desc")}}selected{{/if}}>Precio ↓</option>
+      </select>
+    </div>
+
+    <div class="f-item">
+      <label>Por página</label>
+      <input type="number" name="limit" min="1" value="{{currLimit}}">
+    </div>
+
+    <div class="f-actions">
+      <button type="submit">Filtrar</button>
+      <button type="button" id="resetFilters">Limpiar</button>
+    </div>
+  </form>
+
+
+  <div class="grid">
+      {{#each products}}
+          <div class="card">
+          <h3>{{this.name}}</h3>
+          <p>Categoría: {{this.category}}</p>
+          <p>Precio: ${{this.price}}</p>
+          <p>Stock: {{this.stock}}</p>
+          <a href="/products/view/{{this._id}}">Ver detalle</a>
+          <button class="add-to-cart" data-pid="{{this._id}}">
+              Agregar al carrito
+          </button>
+          </div>
+      {{/each}}
+  </div>
+
+  <nav class="pagination">
+      {{#if hasPrevPage}}
+          <a href="/products?page={{prevPage}}">Anterior</a>
+      {{/if}}
+      <span>Página {{page}} de {{totalPages}}</span>
+      {{#if hasNextPage}}
+          <a href="/products?page={{nextPage}}">Siguiente</a>
+      {{/if}}
+  </nav>
+
+  {{>footer}}
+</div>
+
+<script>
+    async function ensureCartId() {
+      const r = await fetch('/carts/current/id')
+      const data = await r.json()
+      if (data?.status === 'success') {
+        return data.cartId
+      }
+      throw new Error('No se pudo obtener cartId')
+    }
+
+    async function addToCart(pid, qty = 1) {
+      const cid = await ensureCartId()
+      const res = await fetch(`/api/carts/${cid}/products/${pid}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quantity: qty })
+      })
+      if (!res.ok) {
+        throw new Error(await res.text())
+      }
+      return res.json()
+    }
+
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.add-to-cart')
+    if (btn) { 
+      try {
+        await addToCart(btn.dataset.pid, 1)
+        alert('Producto agregado ✔')
+      } catch (err) {
+        alert('Error: ' + err.message)
+      }
+    } else {
+      return
+    }
+  })
+
+  document.getElementById('filters')?.addEventListener('submit', (e) => {
+    e.preventDefault()
+    const fd = new FormData(e.currentTarget)
+    const params = new URLSearchParams()
+    const category = (fd.get('category') || '').trim()
+    const availability = (fd.get('availability') || '').trim()
+    const sort = (fd.get('sort') || '').trim()
+    const limit = (fd.get('limit') || '').trim()
+
+    if (category) {
+      params.set('query', `category:${category}`)
+    } else {
+      if (availability) {
+        params.set('query', `availability:${availability}`)
+      }
+    }
+    if (sort) {
+      params.set('sort', sort)
+    }
+    if (limit) {
+      params.set('limit', limit)
+    }
+    params.set('page', '1') 
+    location.href = `/products?${params.toString()}`
+  })
+
+  document.getElementById('resetFilters')?.addEventListener('click', () => {
+    location.href = '/products'
+  })
+</script>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f8f8f8;
+    margin: 0;
+    padding: 0 12px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  h1 {
+    text-align: center;
+    margin: 16px 0 10px;
+  }
+
+  .grid {
+    width: 100%;
+    max-width: 1100px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .card h3 {
+    margin: 0 0 6px;
+    font-size: 18px;
+    color: #222;
+  }
+
+  .card p {
+    margin: 0;
+    color: #444;
+    font-size: 14px;
+  }
+
+  .card a {
+    text-decoration: none;
+    color: #0d6efd;
+    font-size: 14px;
+  }
+  .card a:hover { text-decoration: underline; }
+
+  .card .add-to-cart {
+    margin-top: 8px;
+    align-self: flex-start;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.02s;
+  }
+  .card .add-to-cart:hover { background: #005ec2; }
+  .card .add-to-cart:active { transform: translateY(1px); }
+
+  .pagination {
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #fff;
+    padding: 8px 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  }
+
+  .pagination a {
+    text-decoration: none;
+    background: #e9ecef;
+    color: #222;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+
+  .pagination span {
+    font-size: 14px;
+    color: #333;
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    background: #fff;
+    padding: 16px;
+    margin: 12px 0 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    max-width: 1100px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .filters .f-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 160px;
+  }
+
+  .filters label {
+    font-size: 13px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .filters select,
+  .filters input[type="number"] {
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    background: #fff;
+  }
+
+  .filters select:focus,
+  .filters input[type="number"]:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+
+  .filters .f-actions {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .filters button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.02s;
+  }
+
+  .filters button[type="submit"] {
+    background: #007bff;
+    color: #fff;
+  }
+  .filters button[type="submit"]:hover { background: #005ec2; }
+
+  .filters button#resetFilters {
+    background: #e9ecef;
+    color: #222;
+  }
+
+  @media (max-width: 1000px) {
+    .grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (max-width: 720px) {
+    .filters {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .filters .f-actions {
+      justify-content: flex-start;
+    }
+
+    .grid { 
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .grid { grid-template-columns: 1fr; }
+    .pagination { flex-direction: column; gap: 8px; }
+  }
+
+</style>
+

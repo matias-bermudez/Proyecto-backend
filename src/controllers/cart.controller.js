@@ -1,4 +1,4 @@
-class CartController {
+export default class CartController {
     constructor(cartService) {
         this.cartService = cartService
     }
@@ -53,4 +53,3 @@ class CartController {
     }
 }
 
-module.exports = CartController
