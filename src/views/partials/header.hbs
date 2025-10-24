@@ -4,7 +4,17 @@
         <ul class="nav-links">
             <li><a href="/products">Productos</a></li>
             <li><a href="/realtimeproducts">Productos LIVE</a></li>
-            <li><a href="/api/carts">Carrito</a></li>
+            <li><a href="/carts">Carrito</a></li>
+            {{#if user}}
+                <li><a href="/users/profile">Hola, <strong>{{user.first_name}}</strong></a></li>
+                <li>
+                    <form action="/users/logout" method="POST" style="display:inline">
+                        <button type="submit">Salir</button>
+                    </form>
+                    </li>
+                {{else}}
+                    <li><a href="/users/login">Ingresar</a></li>
+            {{/if}}
         </ul>
     </nav>
 </header>

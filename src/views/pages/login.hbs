@@ -1,0 +1,233 @@
+{{> header}}
+<div class="auth-wrapper" style="max-width: 900px; margin: 2rem auto; padding: 1.5rem;">
+  {{!-- Mensajes de estado (opcional) --}}
+  {{#if success}}
+    <div class="alert alert-success">{{success}}</div>
+  {{/if}}
+  {{#if error}}
+    <div class="alert alert-danger">{{error}}</div>
+  {{/if}}
+
+  <div class="tabs">
+    <button id="tab-login"  class="tab active" type="button">Login</button>
+    <button id="tab-register" class="tab" type="button">Register</button>
+  </div>
+
+  <div class="panels">
+    {{!-- ===== LOGIN ===== --}}
+    <section id="panel-login" class="panel active">
+      <h2>Iniciar sesión</h2>
+      <p class="muted">Podés usar <strong>email</strong> o <strong>nombre</strong> en el campo “Usuario”.</p>
+
+      <form method="POST" action="/api/users/login" autocomplete="on" novalidate>
+        <div class="form-row">
+          <label for="identifier">Usuario (email o nombre)</label>
+          <input id="identifier" name="identifier" type="text" required placeholder="ej: mati@example.com o Matías" />
+        </div>
+
+        <div class="form-row">
+          <label for="password">Contraseña</label>
+          <div class="password-field">
+            <input id="password" name="password" type="password" required minlength="6" />
+            <button type="button" class="toggle-pass" data-target="#password" aria-label="Mostrar/Ocultar contraseña">👁️</button>
+          </div>
+        </div>
+
+        {{!-- opcional: redirect post-login --}}
+        {{#if redirectTo}}
+          <input type="hidden" name="redirectTo" value="{{redirectTo}}" />
+        {{/if}}
+
+        <button class="btn primary" type="submit">Entrar</button>
+      </form>
+    </section>
+
+    {{!-- ===== REGISTER ===== --}}
+    <section id="panel-register" class="panel">
+      <h2>Crear cuenta</h2>
+
+      <form method="POST" action="/api/users/register" autocomplete="on" novalidate>
+        <div class="grid-2">
+          <div class="form-row">
+            <label for="first_name">Nombre</label>
+            <input id="first_name" name="first_name" type="text" required />
+          </div>
+
+          <div class="form-row">
+            <label for="last_name">Apellido</label>
+            <input id="last_name" name="last_name" type="text" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" required />
+        </div>
+
+        <div class="form-row">
+          <label for="age">Edad</label>
+          <input id="age" name="age" type="number" min="0" step="1" required />
+        </div>
+
+        <div class="grid-2">
+          <div class="form-row">
+            <label for="reg_password">Contraseña</label>
+            <div class="password-field">
+              <input id="reg_password" name="password" type="password" required minlength="6" />
+              <button type="button" class="toggle-pass" data-target="#reg_password" aria-label="Mostrar/Ocultar contraseña">👁️</button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label for="confirm_password">Confirmar contraseña</label>
+            <div class="password-field">
+              <input id="confirm_password" name="confirm_password" type="password" required minlength="6" />
+              <button type="button" class="toggle-pass" data-target="#confirm_password" aria-label="Mostrar/Ocultar contraseña">👁️</button>
+            </div>
+          </div>
+        </div>
+
+        {{!-- rol por defecto "user" en el modelo; no exponemos el campo aquí --}}
+        {{!-- cart se asigna/crea desde backend si corresponde --}}
+
+        <button class="btn primary" type="submit">Registrarme</button>
+      </form>
+    </section>
+  </div>
+</div>
+{{> footer}}
+
+<style>
+  .auth-wrapper {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.06);
+  }
+  .tabs {
+    display: flex;
+    gap: .5rem;
+    margin-bottom: 1rem;
+  }
+  .tab {
+    padding: .6rem 1rem;
+    border-radius: 999px;
+    border: 1px solid #ddd;
+    background: #f7f7f7;
+    cursor: pointer;
+  }
+  .tab.active {
+    background: #0d6efd;
+    color: #fff;
+    border-color: #0d6efd;
+  }
+  .panels .panel {
+    display: none;
+  }
+  .panels .panel.active {
+    display: block;
+  }
+  .form-row {
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+    margin-bottom: .9rem;
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr; gap: .9rem;
+    }
+  input[type="text"], input[type="email"], input[type="number"], input[type="password"] {
+    padding: .6rem .7rem;
+    border: 1px solid #ddd;
+    border-radius: 8px; outline: none;
+  }
+  input:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13,110,253,.15);
+  }
+  .btn.primary {
+    padding: .7rem 1.1rem;
+    border: none;
+    border-radius: 8px;
+    background: #0d6efd;
+    color: #fff; cursor: pointer;
+  }
+  .btn.primary:hover {
+    filter: brightness(1.05);
+  }
+  .muted {
+    color: #666;
+    font-size: .9rem;
+    margin-bottom: .8rem;
+  }
+  .password-field {
+    display: flex;
+    gap: .4rem;
+    align-items: stretch;
+  }
+  .password-field input {
+    flex: 1;
+  }
+  .toggle-pass {
+    padding: 0 .8rem;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: #f3f3f3; cursor: pointer;
+  }
+  .alert {
+    padding: .7rem 1rem; border-radius: 8px; margin-bottom: 1rem;
+  }
+  .alert-success {
+    background: #e7f6ed;
+    border: 1px solid #b6e1c6;
+    color: #166534;
+  }
+  .alert-danger {
+    background: #fde8e8;
+    border: 1px solid #f5c2c2;
+    color: #842029;
+  }
+  @media (max-width: 640px) {
+    .grid-2 {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  // Tabs
+  const tabLogin = document.getElementById('tab-login');
+  const tabRegister = document.getElementById('tab-register');
+  const panelLogin = document.getElementById('panel-login');
+  const panelRegister = document.getElementById('panel-register');
+
+  function activate(tab) {
+    const isLogin = tab.id === 'tab-login';
+    tabLogin.classList.toggle('active', isLogin);
+    tabRegister.classList.toggle('active', !isLogin);
+    panelLogin.classList.toggle('active', isLogin);
+    panelRegister.classList.toggle('active', !isLogin);
+  }
+  tabLogin?.addEventListener('click', () => activate(tabLogin));
+  tabRegister?.addEventListener('click', () => activate(tabRegister));
+
+  // Mostrar/ocultar contraseña
+    document.querySelectorAll('.toggle-pass').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const input = document.querySelector(btn.dataset.target);
+            if (!input) return;
+            input.type = input.type === 'password' ? 'text' : 'password';
+        });
+    });
+
+    // Validación mínima de registro en cliente
+    const regForm = document.querySelector('#panel-register form');
+    regForm?.addEventListener('submit', (e) => {
+        const pass = document.getElementById('reg_password').value;
+        const conf = document.getElementById('confirm_password').value;
+        if (pass !== conf) {
+            e.preventDefault();
+            alert('Las contraseñas no coinciden');
+        }
+    });
+</script>

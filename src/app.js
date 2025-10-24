@@ -4,12 +4,24 @@ import express from 'express'
 import handlebars from 'express-handlebars'
 import { paths } from '../config/config.js'
 import ProductDao from './dao/product.dao.js'
-import CartDao from './dao/cart.dao.js'
 import ProductService from './services/product.service.js'
 import productRoutes from './routes/product.routes.js'
 import cartRoutes from './routes/cart.routes.js'
+import userRoutes from './routes/user.routes.js'
+import userViewRoutes from './routes/user.view.routes.js'
+import cartViewRoutes from './routes/cart.view.routes.js'
+import productViewRoutes from './routes/product.view.routes.js'
+import mongoose from 'mongoose'
+import session from 'express-session'
+import cookieParser from "cookie-parser"
+import MongoStore from "connect-mongo";
+
+
+const SESSION_SECRET = process.env.SESSION_SECRET || 'dev-secret-change-me';
+const SESSION_TTL_SECONDS = Number(process.env.SESSION_TTL_SECONDS || 3600);
 
 await connectDB();
+
 const app = express()
 const prodsDao = new ProductDao()
 const service = new ProductService(prodsDao)
@@ -26,21 +38,48 @@ app.engine('hbs', handlebars.engine({
         eq: (a, b) => String(a) === String(b)
     }
 }))
-
 app.set('view engine', 'hbs')
 app.set('views', paths.views)
 
+//Middlewares
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use('/static', express.static(paths.public))
 
+app.use(cookieParser(SESSION_SECRET))
+
+app.use(session({
+  secret: SESSION_SECRET,      
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production', // en prod: requiere HTTPS
+    maxAge: SESSION_TTL_SECONDS * 1000             // ej: 1h
+  },
+  store: MongoStore.create({
+    client: mongoose.connection.getClient(),
+    ttl: SESSION_TTL_SECONDS,                      
+    collectionName: 'sessions'            
+  })
+}))
+
+app.use((req, res, next) => {
+  res.locals.user = req.session?.user || null;
+  next();
+});
+
+
 //Rutas API
 app.use('/api/products', productRoutes)
 app.use('/api/carts', cartRoutes)
+app.use('/api/users', userRoutes)
 
 //Vistas
-app.use('/carts', cartRoutes) 
-app.use('/products', productRoutes)
+app.use('/carts', cartViewRoutes) 
+app.use('/products', productViewRoutes)
+app.use('/users', userViewRoutes)
 
 app.get('/', (_req, res) =>
   res.render('pages/home', { titulo: 'Inicio desde Handlebars' })
