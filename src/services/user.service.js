@@ -18,9 +18,9 @@ export default class UserService {
             last_name,
             email,
             age,
-            password, // acá deberías pasar el hash, no el texto plano
+            password,
             cart,
-            role: role || 'user' // por si no viene, se usa 'user'
+            role: role || 'user'
         });
     }
 

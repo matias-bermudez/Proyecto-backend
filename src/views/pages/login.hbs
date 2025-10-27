@@ -1,6 +1,5 @@
 {{> header}}
 <div class="auth-wrapper" style="max-width: 900px; margin: 2rem auto; padding: 1.5rem;">
-  {{!-- Mensajes de estado (opcional) --}}
   {{#if success}}
     <div class="alert alert-success">{{success}}</div>
   {{/if}}
@@ -33,7 +32,6 @@
           </div>
         </div>
 
-        {{!-- opcional: redirect post-login --}}
         {{#if redirectTo}}
           <input type="hidden" name="redirectTo" value="{{redirectTo}}" />
         {{/if}}
@@ -86,9 +84,6 @@
             </div>
           </div>
         </div>
-
-        {{!-- rol por defecto "user" en el modelo; no exponemos el campo aquí --}}
-        {{!-- cart se asigna/crea desde backend si corresponde --}}
 
         <button class="btn primary" type="submit">Registrarme</button>
       </form>
@@ -195,39 +190,38 @@
 </style>
 
 <script>
-  // Tabs
   const tabLogin = document.getElementById('tab-login');
   const tabRegister = document.getElementById('tab-register');
   const panelLogin = document.getElementById('panel-login');
   const panelRegister = document.getElementById('panel-register');
 
-  function activate(tab) {
-    const isLogin = tab.id === 'tab-login';
-    tabLogin.classList.toggle('active', isLogin);
-    tabRegister.classList.toggle('active', !isLogin);
-    panelLogin.classList.toggle('active', isLogin);
-    panelRegister.classList.toggle('active', !isLogin);
+  function switchTab(tab) {
+    const loginActive = tab.id === 'tab-login';
+    tabLogin.classList.toggle('active', loginActive);
+    tabRegister.classList.toggle('active', !loginActive);
+    panelLogin.classList.toggle('active', loginActive);
+    panelRegister.classList.toggle('active', !loginActive);
   }
-  tabLogin?.addEventListener('click', () => activate(tabLogin));
-  tabRegister?.addEventListener('click', () => activate(tabRegister));
+
+  tabLogin?.addEventListener('click', () => switchTab(tabLogin));
+  tabRegister?.addEventListener('click', () => switchTab(tabRegister));
 
   // Mostrar/ocultar contraseña
-    document.querySelectorAll('.toggle-pass').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const input = document.querySelector(btn.dataset.target);
-            if (!input) return;
-            input.type = input.type === 'password' ? 'text' : 'password';
-        });
+  document.querySelectorAll('.toggle-pass').forEach(button => {
+    button.addEventListener('click', () => {
+      const input = document.querySelector(button.dataset.target);
+      if (!input) return;
+      input.type = input.type === 'password' ? 'text' : 'password';
     });
+  });
 
-    // Validación mínima de registro en cliente
-    const regForm = document.querySelector('#panel-register form');
-    regForm?.addEventListener('submit', (e) => {
-        const pass = document.getElementById('reg_password').value;
-        const conf = document.getElementById('confirm_password').value;
-        if (pass !== conf) {
-            e.preventDefault();
-            alert('Las contraseñas no coinciden');
-        }
-    });
+  const regForm = document.querySelector('#panel-register form');
+  regForm?.addEventListener('submit', e => {
+    const pass = document.getElementById('reg_password').value;
+    const confirm = document.getElementById('confirm_password').value;
+    if (pass !== confirm) {
+      e.preventDefault();
+      alert('Las contraseñas no coinciden');
+    }
+  });
 </script>

@@ -18,7 +18,7 @@ router.get('/login', async (req, res, next) => {
     }
 })
 
-router.post('/register', requireGuest, controller.createUser); // tu controller ya redirige si quiere HTML
+router.post('/register', requireGuest, controller.createUser);
 router.post('/login', requireGuest, controller.loginUser);
 
 router.get('/profile', requireAuth, (req, res) => {
@@ -26,10 +26,10 @@ router.get('/profile', requireAuth, (req, res) => {
 });
 
 router.get('/profile', requireAuth, async (req, res, next) => {
-  try {
-    const me = await service.getById(req.session.user.id);
-    res.render('pages/users/profile', { titulo: 'Mi perfil', me });
-  } catch (e) { next(e); }
+    try {
+        const me = await service.getById(req.session.user.id);
+        res.render('pages/users/profile', { titulo: 'Mi perfil', me });
+    } catch (e) { next(e); }
 });
 
 router.post('/profile', requireAuth, controller.updateUser);

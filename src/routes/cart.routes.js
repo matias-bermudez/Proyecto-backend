@@ -3,33 +3,19 @@ import express from 'express'
 import CartDao from '../dao/cart.dao.js'
 import CartService from '../services/cart.service.js'
 
+import UserDao from '../dao/user.dao.js'
+
 const router = express.Router()
+const userDao = new UserDao()
 const cartDao = new CartDao()
 const service = new CartService(cartDao)
 
-//vistas 
-router.get('/', async (req, res, next) => {
-  try {
-    let cid = req.cookies?.cartId || null
-    if (!cid) {
-      const cart = await service.createCart()
-      cid = cart._id.toString()
-      res.cookie('cartId', cid, {
-        path: '/',
-        maxAge: 30 * 24 * 60 * 60 * 1000,
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production'
-      })
-    }
-    return res.redirect(`/carts/${cid}`)
-  } catch (e) {
-    next(e)
-  }
-})
-
 router.post('/:cid/finalize', async (req, res, next) => {
   try {
+    const user = req.session?.user
+    if(!user) {
+      return res.redirect('/login')
+    }
     const { cid } = req.params;
     if (!mongoose.Types.ObjectId.isValid(cid)) {
       return res.status(404).json({ status: 'error', error: 'Carrito no encontrado' });
@@ -38,6 +24,8 @@ router.post('/:cid/finalize', async (req, res, next) => {
     if (!result.ok) {
       return res.status(result.code).json({ status: 'error', error: result.msg });
     }
+
+    await userDao.addCartToUser(user.id, cid)
     res.setHeader(
       'Set-Cookie',
       `cartId=; Path=/; Max-Age=0`

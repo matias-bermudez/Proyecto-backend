@@ -1,4 +1,5 @@
 import { CartModel } from '../db/models/cart.model.js'
+import UserDao from './user.dao.js'
 
 export default class CartDao {
     constructor() {}

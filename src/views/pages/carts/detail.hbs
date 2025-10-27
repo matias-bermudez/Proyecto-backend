@@ -46,14 +46,12 @@
 {{> footer}}
 
 <script>
-  
-
   (async function(){
     const cid = "{{cart._id}}"
 
     document.getElementById('btn-finalize')?.addEventListener('click', async () => {
   try {
-    const res = await fetch(`/carts/${cid}/finalize`, { method: 'POST' });
+    const res = await fetch(`/api/carts/${cid}/finalize`, { method: 'POST' });
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
@@ -62,7 +60,6 @@
     }
 
     alert('✅ Compra finalizada');
-    // Te redirige a /carts (crea uno nuevo o reutiliza la cookie).
     location.href = '/carts';
   } catch (err) {
     alert('Error de red: ' + err.message);
