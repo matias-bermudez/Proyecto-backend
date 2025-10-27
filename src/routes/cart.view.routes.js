@@ -53,7 +53,7 @@ router.get('/:cid', async (req, res, next) => {
             httpOnly: true,
             sameSite: 'lax',
             secure: process.env.NODE_ENV === 'production'
-        });
+        })
         return res.redirect(`/carts/${cart._id}`)
         }
 
@@ -73,4 +73,4 @@ router.get('/:cid', async (req, res, next) => {
     }
 })
 
-export default router;
+export default router

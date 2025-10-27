@@ -12,7 +12,7 @@ export default class UserService {
     }
 
     async createUser(data) {
-        const { first_name, last_name, email, age, password, cart, role } = data;
+        const { first_name, last_name, email, age, password, cart, role } = data
         return this.userDao.create({
             first_name,
             last_name,
@@ -21,7 +21,7 @@ export default class UserService {
             password,
             cart,
             role: role || 'user'
-        });
+        })
     }
 
     async deleteUser(id) {
@@ -29,18 +29,17 @@ export default class UserService {
     }
 
     async findByIdentifier(identifier) {
-    const looksLikeEmail = identifier.includes('@');
-    if (looksLikeEmail) {
-        const email = identifier.trim().toLowerCase();
-        return this.userDao.findByEmail(email);
-    } else {
-        const name = identifier.trim();
-        return this.userDao.findByFirstName(name);
-    }
+        const looksLikeEmail = identifier.includes('@')
+        if (looksLikeEmail) {
+            const email = identifier.trim().toLowerCase()
+            return this.userDao.findByEmail(email)
+        } else {
+            return null
+        }
     }
 
     async updateProfile(id, patch) {
-        return this.userDao.updateById(id, patch);
+        return this.userDao.updateById(id, patch)
     }
 
 

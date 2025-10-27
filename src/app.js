@@ -1,33 +1,32 @@
 //DB
 import { connectDB } from "./db/connect.js";
-import express from 'express'
-import handlebars from 'express-handlebars'
-import mongoose from 'mongoose'
-import session from 'express-session'
-import cookieParser from "cookie-parser"
+import express from 'express';
+import handlebars from 'express-handlebars';
+import mongoose from 'mongoose';
+import session from 'express-session';
+import cookieParser from "cookie-parser";
 import MongoStore from "connect-mongo";
 import passport from 'passport';
 
-import { paths } from '../config/config.js'
-import configurePassport from '../config/passport.js'
+import { paths } from '../config/config.js';
+import configurePassport from '../config/passport.js';
 
-import ProductDao from './dao/product.dao.js'
-import ProductService from './services/product.service.js'
+import ProductDao from './dao/product.dao.js';
+import ProductService from './services/product.service.js';
 
-import productRoutes from './routes/product.routes.js'
-import sessionRoutes from './routes/sessions.routes.js'
-import cartRoutes from './routes/cart.routes.js'
-import userRoutes from './routes/user.routes.js'
+import productRoutes from './routes/product.routes.js';
+import sessionRoutes from './routes/sessions.routes.js';
+import cartRoutes from './routes/cart.routes.js';
+import userRoutes from './routes/user.routes.js';
 
-import userViewRoutes from './routes/user.view.routes.js'
-import cartViewRoutes from './routes/cart.view.routes.js'
-import productViewRoutes from './routes/product.view.routes.js'
+import userViewRoutes from './routes/user.view.routes.js';
+import cartViewRoutes from './routes/cart.view.routes.js';
+import productViewRoutes from './routes/product.view.routes.js';
 
+const SESSION_SECRET = process.env.SESSION_SECRET || 'dev-secret-change-me'
+const SESSION_TTL_SECONDS = Number(process.env.SESSION_TTL_SECONDS || 3600)
 
-const SESSION_SECRET = process.env.SESSION_SECRET || 'dev-secret-change-me';
-const SESSION_TTL_SECONDS = Number(process.env.SESSION_TTL_SECONDS || 3600);
-
-await connectDB();
+await connectDB()
 
 const app = express()
 const prodsDao = new ProductDao()
@@ -76,10 +75,9 @@ app.use(session({
 }))
 
 app.use((req, res, next) => {
-  res.locals.user = req.session?.user || null;
-  next();
-});
-
+  res.locals.user = req.session?.user || null
+  next()
+})
 
 //Rutas API
 app.use('/api/products', productRoutes)

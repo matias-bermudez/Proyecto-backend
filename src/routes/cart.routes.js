@@ -16,26 +16,26 @@ router.post('/:cid/finalize', async (req, res, next) => {
     if(!user) {
       return res.redirect('/login')
     }
-    const { cid } = req.params;
+    const { cid } = req.params
     if (!mongoose.Types.ObjectId.isValid(cid)) {
-      return res.status(404).json({ status: 'error', error: 'Carrito no encontrado' });
+      return res.status(404).json({ status: 'error', error: 'Carrito no encontrado' })
     }
-    const result = await service.finalizeCart(cid);
+    const result = await service.finalizeCart(cid)
     if (!result.ok) {
-      return res.status(result.code).json({ status: 'error', error: result.msg });
+      return res.status(result.code).json({ status: 'error', error: result.msg })
     }
 
     await userDao.addCartToUser(user.id, cid)
     res.setHeader(
       'Set-Cookie',
       `cartId=; Path=/; Max-Age=0`
-    );
+    )
 
     return res.json({ status: 'success', message: 'Compra finalizada' });
   } catch (e) {
-    next(e);
+    next(e)
   }
-});
+})
 
 router.get('/current/id', async (req, res, next) => {
   try {
@@ -58,7 +58,7 @@ router.get('/current/id', async (req, res, next) => {
         httpOnly: true,
         sameSite: 'lax',
         secure: process.env.NODE_ENV === 'production'
-      });
+      })
     }
     return res.json({ status: 'success', cartId: cid })
   } catch (e) {

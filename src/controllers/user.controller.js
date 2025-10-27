@@ -41,25 +41,25 @@ export default class UserController {
                 password,
                 role,
                 redirectTo,
-            } = req.body;
+            } = req.body
             if (!first_name || !last_name || !email || !age || !password) {
                 if (wantsHTML(req)) {
                     return res.redirect('/users/login?error=Faltan%20datos')
                 } else {
-                    return res.status(400).json({ status: 'error', error: 'Faltan campos obligatorios' });
+                    return res.status(400).json({ status: 'error', error: 'Faltan campos obligatorios' })
                 }
             }
 
-            const exists = await this.userService.findByIdentifier(email.trim().toLowerCase());
+            const exists = await this.userService.findByIdentifier(email.trim().toLowerCase())
             if (exists) {
                 if (wantsHTML(req)) {
                     return res.redirect('/users/login?error=Email%20ya%20registrado')
                 } else {
-                    return res.status(409).json({ status: 'error', error: 'Email ya registrado' });
+                    return res.status(409).json({ status: 'error', error: 'Email ya registrado' })
                 }
             }
 
-            const hash = await bcrypt.hashSync(req.body.password, 10);
+            const hash = await bcrypt.hashSync(req.body.password, 10)
             const newUser = await this.userService.createUser({
                 first_name: req.body.first_name,
                 last_name: req.body.last_name,
@@ -67,7 +67,7 @@ export default class UserController {
                 age: Number(req.body.age),
                 password: hash,
                 role: req.body.role || 'user'
-            });
+            })
 
             //login automático tras el registro
             req.session.user = {
@@ -77,9 +77,9 @@ export default class UserController {
                 email: newUser.email,
                 role: newUser.role,
                 cartId: newUser.cart ? newUser.cart.toString() : null
-            };
+            }
             
-            if (wantsHTML(req)) return res.redirect(redirectTo || '/');
+            if (wantsHTML(req)) return res.redirect(redirectTo || '/')
             res.status(201).json({ status: 'success', payload: { id: user._id } })
         } catch (err) {
             next(err)
@@ -102,7 +102,7 @@ export default class UserController {
             const { identifier , password, redirectTo } = req.body
             if (!identifier  || !password) {
                 if (wantsHTML(req)) {
-                    return res.redirect('/users/login?error=Faltan%20credenciales');
+                    return res.redirect('/users/login?error=Faltan%20credenciales')
                 } else {
                     return res.status(400).json({ msj: 'Faltan datos' })
                 }
@@ -111,18 +111,18 @@ export default class UserController {
             const user = await this.userService.findByIdentifier(identifier)
             if (!user) {
                 if (wantsHTML(req)) {
-                    return res.redirect('/users/login?error=Credenciales%20inv%C3%A1lidas');
+                    return res.redirect('/users/login?error=Credenciales%20inv%C3%A1lidas')
                 } else {
-                    return res.status(401).json({ status: 'error', error: 'Credenciales inválidas' });
+                    return res.status(401).json({ status: 'error', error: 'Credenciales inválidas' })
                 }
             }
 
             const success = await bcrypt.compare(password, user.password)
             if (!success) {
                 if (wantsHTML(req)) {
-                    return res.redirect('/users/login?error=Credenciales%20inv%C3%A1lidas');
+                    return res.redirect('/users/login?error=Credenciales%20inv%C3%A1lidas')
                 } else {
-                    return res.status(401).json({ status: 'error', error: 'Credenciales inválidas' });
+                    return res.status(401).json({ status: 'error', error: 'Credenciales inválidas' })
                 }
             }
 
@@ -133,12 +133,12 @@ export default class UserController {
                 email: user.email,
                 role: user.role,
                 cartId: user.cart ? user.cart.toString() : null
-            };
+            }
 
             if (wantsHTML(req)) {
-                return res.redirect(redirectTo || '/');
+                return res.redirect(redirectTo || '/')
             } else {
-                return res.json({ status: 'success', payload: { user: req.session.user } });
+                return res.json({ status: 'success', payload: { user: req.session.user } })
             }
         } catch (err) {
             next(err)
@@ -147,22 +147,22 @@ export default class UserController {
 
     updateUser = async (req, res, next) => {
         try {
-            const { first_name, last_name, age } = req.body;
-            const id = req.session.user.id;
+            const { first_name, last_name, age } = req.body
+            const id = req.session.user.id
 
             const updated = await this.userService.updateProfile(id, {
                 first_name,
                 last_name,
                 age: Number(age)
-            });
+            })
 
-            req.session.user.first_name = updated.first_name;
-            req.session.user.last_name  = updated.last_name;
-            req.session.user.age        = updated.age;
+            req.session.user.first_name = updated.first_name
+            req.session.user.last_name  = updated.last_name
+            req.session.user.age        = updated.age
 
-            return res.redirect('/'); // vuelve a la vista
+            return res.redirect('/')
         } catch (e) {
-            next(e);
+            next(e)
         }
         }
 }
