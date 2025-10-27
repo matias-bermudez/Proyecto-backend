@@ -1,4 +1,5 @@
 import { UserModel } from '../db/models/user.model.js';
+import mongoose from 'mongoose';
 
 export default class UserDao {
     constructor() {}
@@ -40,6 +41,21 @@ export default class UserDao {
 
     async updateById(id, patch) {
         return UserModel.findByIdAndUpdate(id, patch, { new: true }).lean();
+    }
+
+    async addCartToUser(userId, cartId) {
+        if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(cartId)) {
+            throw new Error('IDs inválidos');
+        }
+        return UserModel.findByIdAndUpdate(
+            userId,
+            { $addToSet: { carts: cartId } },
+            { new: true }
+        ).lean();
+    }
+
+    async getCarts(userId) {
+        return UserModel.findById(userId).populate('carts').lean();
     }
 
 }

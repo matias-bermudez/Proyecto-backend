@@ -7,6 +7,26 @@ const router = express.Router()
 const cartDao = new CartDao()
 const service = new CartService(cartDao)
 
+router.get('/', async (req, res, next) => {
+    try {
+        let cid = req.cookies?.cartId || null
+        if (!cid) {
+            const cart = await service.createCart()
+            cid = cart._id.toString()
+            res.cookie('cartId', cid, {
+                path: '/',
+                maxAge: 30 * 24 * 60 * 60 * 1000,
+                httpOnly: true,
+                sameSite: 'lax',
+                secure: process.env.NODE_ENV === 'production'
+            })
+        }
+        return res.redirect(`/carts/${cid}`)
+    } catch (e) {
+        next(e)
+    }
+})
+
 router.get('/:cid', async (req, res, next) => {
     try {
         const { cid } = req.params

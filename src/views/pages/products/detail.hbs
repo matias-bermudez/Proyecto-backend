@@ -42,7 +42,7 @@
 
 <script>
   async function ensureCartId() {
-    const r = await fetch('/carts/current/id')
+    const r = await fetch('/api/carts/current/id')
     const data = await r.json()
     if (data?.status === 'success') {
       return data.cartId

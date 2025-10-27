@@ -59,7 +59,7 @@ export default class UserController {
                 }
             }
 
-            const hash = await bcrypt.hash(req.body.password, 10);
+            const hash = await bcrypt.hashSync(req.body.password, 10);
             const newUser = await this.userService.createUser({
                 first_name: req.body.first_name,
                 last_name: req.body.last_name,

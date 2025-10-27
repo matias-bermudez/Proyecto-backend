@@ -1,53 +1,56 @@
-<div class="profile-container">
-    <h2 class="title">{{titulo}}</h2>
+<div class="container">
+    <div class="profile-container">
+        {{> header}}
+        <h2 class="title">{{titulo}}</h2>
 
-    {{#if (eq ../ok "1")}}
-        <div class="alert success">Perfil actualizado</div>
-    {{/if}}
+        {{#if (eq ../ok "1")}}
+            <div class="alert success">Perfil actualizado</div>
+        {{/if}}
 
-    <section class="card">
-        <h3 class="card-title">Datos de la cuenta</h3>
+        <section class="card">
+            <h3 class="card-title">Datos de la cuenta</h3>
 
-        <form class="form" method="POST" action="/users/profile">
-            <div class="grid-2">
-                <div class="form-row">
-                    <label for="first_name">Nombre</label>
-                    <input id="first_name" type="text" name="first_name" value="{{user.first_name}}" required>
+            <form class="form" method="POST" action="/users/profile">
+                <div class="grid-2">
+                    <div class="form-row">
+                        <label for="first_name">Nombre</label>
+                        <input id="first_name" type="text" name="first_name" value="{{user.first_name}}" required>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="last_name">Apellido</label>
+                        <input id="last_name" type="text" name="last_name" value="{{user.last_name}}" required>
+                    </div>
                 </div>
 
-                <div class="form-row">
-                    <label for="last_name">Apellido</label>
-                    <input id="last_name" type="text" name="last_name" value="{{user.last_name}}" required>
+                <div class="grid-2">
+                    <div class="form-row">
+                        <label for="age">Edad</label>
+                        <input id="age" type="number" name="age" value="{{user.age}}" min="0" required>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="email">Email</label>
+                        <input id="email" type="email" value="{{user.email}}" disabled>
+                        <small class="muted">(No editable)</small>
+                    </div>
                 </div>
-            </div>
 
-            <div class="grid-2">
-                <div class="form-row">
-                    <label for="age">Edad</label>
-                    <input id="age" type="number" name="age" value="{{user.age}}" min="0" required>
+                <div class="actions">
+                    <button class="btn primary" type="submit">Guardar cambios</button>
                 </div>
+            </form>
+        </section>
 
-                <div class="form-row">
-                    <label for="email">Email</label>
-                    <input id="email" type="email" value="{{user.email}}" disabled>
-                    <small class="muted">(No editable)</small>
-                </div>
-            </div>
-
-            <div class="actions">
-                <button class="btn primary" type="submit">Guardar cambios</button>
-            </div>
-        </form>
-    </section>
-
-    <section class="card">
-        <h3 class="card-title">Sesión</h3>
-        <form method="POST" action="/users/logout">
-            <button class="btn outline" type="submit">Cerrar sesión</button>
-        </form>
-    </section>
+        <section class="card">
+            <h3 class="card-title">Sesión</h3>
+            <form method="POST" action="/users/logout">
+                <button class="btn outline" type="submit">Cerrar sesión</button>
+            </form>
+        </section>
+        {{> footer}}
+    </div>
 </div>
-
 <style>
     :root{
         --bg:#f7f7fb;
@@ -61,10 +64,18 @@
         --radius:14px;
         --radius-sm:10px;
     }
+
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        width: 100%;
+    }
+
     .profile-container{
-        max-width: 820px;
-        margin: 2rem auto;
-        padding: 0 1rem;
+        width: 100%;
     }
     .title{
         margin: 0 0 1rem;
