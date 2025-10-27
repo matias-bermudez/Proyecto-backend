@@ -36,19 +36,19 @@ export default class CartService {
     }
 
     async finalizeCart(cid) {
-        const cart = await this.cartDao.getByID(cid);
+        const cart = await this.cartDao.getByID(cid)
         if (!cart) {
-            return { ok: false, code: 404, msg: 'Carrito no encontrado' };
+            return { ok: false, code: 404, msg: 'Carrito no encontrado' }
         }
         if (cart.status === 'closed') {
-            return { ok: false, code: 409, msg: 'El carrito ya fue finalizado' };
+            return { ok: false, code: 409, msg: 'El carrito ya fue finalizado' }
         }
-        const hasItems = Array.isArray(cart.products) && cart.products.length > 0;
+        const hasItems = Array.isArray(cart.products) && cart.products.length > 0
         if (!hasItems) {
-            return { ok: false, code: 409, msg: 'No se puede finalizar un carrito vacío' };
+            return { ok: false, code: 409, msg: 'No se puede finalizar un carrito vacío' }
         }
-        await this.cartDao.setStatusClosed(cid);
-        return { ok: true };
+        await this.cartDao.setStatusClosed(cid)
+        return { ok: true }
     }
 
 }

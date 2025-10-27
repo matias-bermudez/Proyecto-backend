@@ -1,7 +1,7 @@
 export function wantsHTML(req) {
-    return !!req.accepts('html');
+    return !!req.accepts('html')
 }
 
 export function wantsJSON(req) {
-    return !!req.accepts('json');
+    return !!req.accepts('json')
 }

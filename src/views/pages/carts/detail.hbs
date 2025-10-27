@@ -55,7 +55,7 @@
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-      alert(data?.error || 'No se pudo finalizar el carrito');
+      alert(data?.error || 'Iniciar sesión para finalizar la compra');
       return;
     }
 
