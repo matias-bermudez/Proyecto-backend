@@ -71,6 +71,14 @@
           <input id="age" name="age" type="number" min="0" step="1" required />
         </div>
 
+        <div class="form-row">
+          <label for="role">Rol</label>
+          <select id="role" name="role" required>
+            <option value="user" selected>Usuario</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+
         <div class="grid-2">
           <div class="form-row">
             <label for="reg_password">Contraseña</label>
@@ -97,6 +105,21 @@
 {{> footer}}
 
 <style>
+    select {
+    padding: .6rem .7rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    outline: none;
+    font-size: .95rem;
+    cursor: pointer;
+  }
+
+  select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13,110,253,.15);
+  }
+
   .auth-wrapper {
     background: #fff;
     border-radius: 12px;

@@ -1,61 +1,98 @@
-import { UserModel } from '../db/models/user.model.js';
+// src/dao/user.dao.js
 import mongoose from 'mongoose';
+import { UserModel } from '../db/models/user.model.js';
+
+function escapeRegex(str = '') {
+  // escapa caracteres especiales para usar en RegExp
+  return String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 export default class UserDao {
-    constructor() {}
+  constructor() {}
 
-    async getAll() {
-        return UserModel.find().lean()
-    }
-    
-    async getByID(id) {
-        return UserModel.findById(id).lean()
-    }
+  async getAll() {
+    return UserModel.find().lean();
+  }
 
-    async create(user) {
-        const { 
-            first_name,
-            last_name,
-            email,
-            age,
-            password,
-            cart,
-            role 
-        } = user
-        const doc = await UserModel.create({ first_name, last_name, email, age, password, cart, role })
-        return doc.toObject()
-    }
+  async getByID(id) {
+    if (!mongoose.Types.ObjectId.isValid(id)) return null;
+    return UserModel.findById(id).lean();
+  }
 
-    async delete(id) {
-        const res = await UserModel.findByIdAndDelete(id)
-        return !!res
-    }
+  async create(user) {
+    const {
+      first_name,
+      last_name,
+      email,
+      age,
+      password,
+      carts = [], // usar 'carts' como array, por compatibilidad con el schema
+      role
+    } = user;
 
-    async findByFirstName(first_name) {
-        return UserModel.findOne({ first_name: new RegExp(`^${first_name}$`, 'i') })
+    try {
+      const doc = await UserModel.create({
+        first_name,
+        last_name,
+        email,
+        age,
+        password,
+        carts,
+        role
+      });
+      return doc.toObject();
+    } catch (err) {
+      // manejo básico de duplicate key (email único)
+      if (err && err.code === 11000 && err.keyPattern && err.keyPattern.email) {
+        const e = new Error('Email ya registrado');
+        e.code = 11000;
+        throw e;
+      }
+      throw err;
     }
+  }
 
-    async findByEmail(email) {
-        return UserModel.findOne({ email })
+  async delete(id) {
+    if (!mongoose.Types.ObjectId.isValid(id)) return false;
+    const res = await UserModel.findByIdAndDelete(id);
+    return !!res;
+  }
+
+  async findByFirstName(first_name) {
+    if (!first_name) return null;
+    const re = new RegExp(`^${escapeRegex(first_name)}$`, 'i');
+    return UserModel.findOne({ first_name: re }).lean();
+  }
+
+  async findByEmail(email) {
+    if (!email) return null;
+    return UserModel.findOne({ email: String(email).trim().toLowerCase() }).lean();
+  }
+
+  async updateById(id, patch) {
+    if (!mongoose.Types.ObjectId.isValid(id)) return null;
+    // opcional: eliminar campos que no querés permitir actualizar aquí
+    const updated = await UserModel.findByIdAndUpdate(id, patch, {
+      new: true,
+      runValidators: true
+    }).lean();
+    return updated || null;
+  }
+
+  async addCartToUser(userId, cartId) {
+    if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(cartId)) {
+      throw new Error('IDs inválidos');
     }
+    const updated = await UserModel.findByIdAndUpdate(
+      userId,
+      { $addToSet: { carts: cartId } },
+      { new: true }
+    ).lean();
+    return updated;
+  }
 
-    async updateById(id, patch) {
-        return UserModel.findByIdAndUpdate(id, patch, { new: true }).lean()
-    }
-
-    async addCartToUser(userId, cartId) {
-        if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(cartId)) {
-            throw new Error('IDs inválidos')
-        }
-        return UserModel.findByIdAndUpdate(
-            userId,
-            { $addToSet: { carts: cartId } },
-            { new: true }
-        ).lean()
-    }
-
-    async getCarts(userId) {
-        return UserModel.findById(userId).populate('carts').lean()
-    }
-
+  async getCarts(userId) {
+    if (!mongoose.Types.ObjectId.isValid(userId)) return null;
+    return UserModel.findById(userId).populate('carts').lean();
+  }
 }

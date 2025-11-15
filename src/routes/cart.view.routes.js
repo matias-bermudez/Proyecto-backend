@@ -1,17 +1,14 @@
 import mongoose from 'mongoose'
 import express from 'express'
-import CartDao from '../dao/cart.dao.js'
-import CartService from '../services/cart.service.js'
+import { cartService } from '../services/index.js'
 
 const router = express.Router()
-const cartDao = new CartDao()
-const service = new CartService(cartDao)
 
 router.get('/', async (req, res, next) => {
     try {
         let cid = req.cookies?.cartId || null
         if (!cid) {
-            const cart = await service.createCart()
+            const cart = await cartService.createCart()
             cid = cart._id.toString()
             res.cookie('cartId', cid, {
                 path: '/',
@@ -32,7 +29,7 @@ router.get('/:cid', async (req, res, next) => {
         const { cid } = req.params
 
         if (!mongoose.Types.ObjectId.isValid(cid)) {
-        const cart = await service.createCart()
+        const cart = await cartService.createCart()
         res.cookie('cartId', cart._id.toString(), {
             path: '/',
             maxAge: 30 * 24 * 60 * 60 * 1000,
@@ -43,10 +40,10 @@ router.get('/:cid', async (req, res, next) => {
         return res.redirect(`/carts/${cart._id}`)
         }
 
-        let cart = await service.getCartByID(cid, { populated: true })
+        let cart = await cartService.getCartByID(cid, { populated: true })
 
         if (!cart) {
-        cart = await service.createCart()
+        cart = await cartService.createCart()
         res.cookie('cartId', cart._id.toString(), {
             path: '/',
             maxAge: 30 * 24 * 60 * 60 * 1000,

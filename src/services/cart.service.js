@@ -1,54 +1,51 @@
 export default class CartService {
-    constructor(cartDao) {
-        this.cartDao = cartDao
+    constructor(cartRepository) {
+        this.cartRepo = cartRepository;
     }
 
     async getAll() {
-        return await this.cartDao.getAll()
+        return await this.cartRepo.getAll();
     }
 
     async getCartByID(id, { populated = false } = {}) {
-        if (populated) {
-            return this.cartDao.getByIDPopulated(id)
-        } else {
-            return this.cartDao.getByID(id)
-        }
+        return this.cartRepo.getById(id, { populated });
     }
 
     async setProductQuantity(cid, pid, quantity) {
-        return this.cartDao.setProductQuantity(cid, pid, quantity)
+        // repository method is addOrSetProductQuantity
+        return this.cartRepo.addOrSetProductQuantity(cid, pid, quantity);
     }
 
     async createCart(initial = {}) {
-        return this.cartDao.create(initial)
+        return this.cartRepo.createCart(initial);
     }
 
     async removeProduct(cid, pid) {
-        return this.cartDao.removeProduct(cid, pid)
+        return this.cartRepo.removeProduct(cid, pid);
     }
 
     async emptyCart(cid) {
-        return this.cartDao.empty(cid)
+        return this.cartRepo.emptyCart(cid);
     }
 
     async deleteCart(cid) {
-        return this.cartDao.deleteCart(cid)
+        return this.cartRepo.deleteCart(cid);
     }
 
     async finalizeCart(cid) {
-        const cart = await this.cartDao.getByID(cid)
+        // this logic uses repo methods
+        const cart = await this.cartRepo.getById(cid, { populated: false });
         if (!cart) {
-            return { ok: false, code: 404, msg: 'Carrito no encontrado' }
+        return { ok: false, code: 404, msg: 'Carrito no encontrado' };
         }
         if (cart.status === 'closed') {
-            return { ok: false, code: 409, msg: 'El carrito ya fue finalizado' }
+        return { ok: false, code: 409, msg: 'El carrito ya fue finalizado' };
         }
-        const hasItems = Array.isArray(cart.products) && cart.products.length > 0
+        const hasItems = Array.isArray(cart.products) && cart.products.length > 0;
         if (!hasItems) {
-            return { ok: false, code: 409, msg: 'No se puede finalizar un carrito vacío' }
+        return { ok: false, code: 409, msg: 'No se puede finalizar un carrito vacío' };
         }
-        await this.cartDao.setStatusClosed(cid)
-        return { ok: true }
+        await this.cartRepo.closeCart(cid);
+        return { ok: true };
     }
-
 }

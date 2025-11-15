@@ -9,8 +9,8 @@ import MongoStore from "connect-mongo";
 import passport from 'passport';
 import { paths } from '../config/config.js';
 import configurePassport from '../config/passport.js';
-import ProductDao from './dao/product.dao.js';
-import ProductService from './services/product.service.js';
+
+import { productService } from './services/index.js';
 
 import productRoutes from './routes/product.routes.js';
 import sessionRoutes from './routes/sessions.routes.js';
@@ -28,8 +28,6 @@ const SESSION_TTL_SECONDS = Number(process.env.SESSION_TTL_SECONDS || 3600)
 await connectDB()
 
 const app = express()
-const prodsDao = new ProductDao()
-const service = new ProductService(prodsDao)
 
 configurePassport()
 app.use(passport.initialize())
@@ -95,7 +93,7 @@ app.get('/', (_req, res) =>
 
 app.get('/realtimeproducts', async (req, res, next) => {
   try {
-    const products = await service.getAllProds()
+    const products = await productService.getAllProds()
     res.render('pages/realTimeProds', { products })
   } catch (e) {
     next(e)

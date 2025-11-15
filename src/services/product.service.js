@@ -1,35 +1,34 @@
 export default class ProductService {
-    constructor(prodsDao) {
-        this.prodsDao = prodsDao
+    constructor(productRepository) {
+        this.productRepository = productRepository;
     }
 
     async getProdsPaged(filter, opts) {
-        return this.prodsDao.getPaged(filter, opts)
+        return this.productRepository.getPaged(filter, opts);
     }
 
     async getAllProds() {
-        return this.prodsDao.getAll()
+        return this.productRepository.getAll();
     }
 
     async getProdByID(id) {
-        return this.prodsDao.getByID(id)
+        return this.productRepository.getById(id);
     }
 
     async createProd(data) {
-        const { name, category, price, stock } = data
-        return this.prodsDao.create({ name, category, price, stock })
+        // delega validaciones de negocio al repository
+        return this.productRepository.createProduct(data);
     }
 
     async updateProd(id, update) {
-        return this.prodsDao.update(id, update)
+        return this.productRepository.updateProduct(id, update);
     }
 
     async deleteProd(id) {
-        return this.prodsDao.delete(id)
+        return this.productRepository.deleteProduct(id);
     }
 
     async getCategories() {
-        return this.prodsDao.getDistinctCategories()
+        return this.productRepository.getDistinctCategories();
     }
-    
 }

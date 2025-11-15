@@ -1,14 +1,9 @@
 import { Router } from 'express';
 import { requireAuth, requireGuest } from '../utils/middlewares/auth.js';
 import { PasswordResetModel } from '../db/models/passwordReset.model.js';
-import UserDao from '../dao/user.dao.js';
-import UserService from '../services/user.service.js';
-import UserController from '../controllers/user.controller.js';
-
+import { userService } from '../services/index.js';
+import { userController } from '../controllers/index.js';
 const router = Router()
-const dao = new UserDao()
-const service = new UserService(dao)
-const controller = new UserController(service)
 
 // Form de login/registro
 router.get('/login', async (req, res, next) => {
@@ -19,8 +14,8 @@ router.get('/login', async (req, res, next) => {
     }
 })
 
-router.post('/register', requireGuest, controller.createUser)
-router.post('/login', requireGuest, controller.loginUser)
+router.post('/register', requireGuest, userController.createUser)
+router.post('/login', requireGuest, userController.loginUser)
 
 router.get('/profile', requireAuth, (req, res) => {
     res.render('pages/users/profile', { titulo: 'Mi perfil' })
@@ -28,12 +23,12 @@ router.get('/profile', requireAuth, (req, res) => {
 
 router.get('/profile', requireAuth, async (req, res, next) => {
     try {
-        const me = await service.getById(req.session.user.id)
+        const me = await userService.getById(req.session.user.id)
         res.render('pages/users/profile', { titulo: 'Mi perfil', me })
     } catch (e) { next(e) }
 })
 
-router.post('/profile', requireAuth, controller.updateUser)
+router.post('/profile', requireAuth, userController.updateUser)
 
 // Logout
 router.post('/logout', requireAuth, (req, res) => {
