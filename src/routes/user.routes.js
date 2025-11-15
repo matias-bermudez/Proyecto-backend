@@ -1,22 +1,12 @@
 import { Router } from 'express';
+import { userController } from '../controllers/index.js';
+
 const router = Router()
 
-import UserDao from '../dao/user.dao.js';
-import UserService from '../services/user.service.js';
-import UserController from '../controllers/user.controller.js';
-
-const dao = new UserDao()
-const service = new UserService(dao)
-const controller = new UserController(service)
-
-router.get('/', controller.getUsers)
-
-router.get('/:id', controller.getUserByID)
-
-router.post('/register', controller.createUser)
-
-router.post('/login', controller.loginUser)
-
-router.delete('/:id', controller.deleteUser)
+router.get('/', userController.getUsers)
+router.get('/:id', userController.getUserByID)
+router.post('/register', userController.createUser)
+router.post('/login', userController.loginUser)
+router.delete('/:id', userController.deleteUser)
 
 export default router

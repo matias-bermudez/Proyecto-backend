@@ -41,48 +41,48 @@ export default class UserController {
                 password,
                 role,
                 redirectTo,
-            } = req.body
+            } = req.body;
             if (!first_name || !last_name || !email || !age || !password) {
                 if (wantsHTML(req)) {
-                    return res.redirect('/users/login?error=Faltan%20datos')
+                    return res.redirect('/users/login?error=Faltan%20datos');
                 } else {
-                    return res.status(400).json({ status: 'error', error: 'Faltan campos obligatorios' })
+                    return res.status(400).json({ status: 'error', error: 'Faltan campos obligatorios' });
                 }
             }
-
-            const exists = await this.userService.findByIdentifier(email.trim().toLowerCase())
+            const exists = await this.userService.findByIdentifier(email.trim().toLowerCase());
             if (exists) {
                 if (wantsHTML(req)) {
-                    return res.redirect('/users/login?error=Email%20ya%20registrado')
+                    return res.redirect('/users/login?error=Email%20ya%20registrado');
                 } else {
-                    return res.status(409).json({ status: 'error', error: 'Email ya registrado' })
+                    return res.status(409).json({ status: 'error', error: 'Email ya registrado' });
                 }
             }
 
-            const hash = await bcrypt.hashSync(req.body.password, 10)
             const newUser = await this.userService.createUser({
-                first_name: req.body.first_name,
-                last_name: req.body.last_name,
-                email: req.body.email.trim().toLowerCase(),
-                age: Number(req.body.age),
-                password: hash,
-                role: req.body.role || 'user'
-            })
+                first_name,
+                last_name,
+                email: email.trim().toLowerCase(),
+                age: Number(age),
+                password,
+                role: role || 'user'
+            });
 
-            //login automático tras el registro
+            // login automático tras el registro.
             req.session.user = {
-                id: newUser._id.toString(),
-                first_name: newUser.first_name,
-                last_name: newUser.last_name,
-                email: newUser.email,
-                role: newUser.role,
-                cartId: newUser.cart ? newUser.cart.toString() : null
+            id: newUser._id.toString(),
+            first_name: newUser.first_name,
+            last_name: newUser.last_name,
+            email: newUser.email,
+            role: newUser.role,
+            cartId: newUser.cart ? newUser.cart.toString() : null
+            };
+
+            if (wantsHTML(req)) {
+                return res.redirect(redirectTo || '/');
             }
-            
-            if (wantsHTML(req)) return res.redirect(redirectTo || '/')
-            res.status(201).json({ status: 'success', payload: { id: user._id } })
+            res.status(201).json({ status: 'success', payload: { id: newUser._id } });
         } catch (err) {
-            next(err)
+            next(err);
         }
     }
 

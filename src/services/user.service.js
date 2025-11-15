@@ -1,19 +1,19 @@
 export default class UserService {
-    constructor(userDao) {
-        this.userDao = userDao
+    constructor(userRepository) {
+        this.userRepository = userRepository
     }
 
     async getAllUsers() {
-        return this.userDao.getAll()
+        return this.userRepository.getAll()
     }
 
     async getUserByID(id) {
-        return this.userDao.getByID(id)
+        return this.userRepository.getByID(id)
     }
 
     async createUser(data) {
         const { first_name, last_name, email, age, password, cart, role } = data
-        return this.userDao.create({
+        return this.userRepository.create({
             first_name,
             last_name,
             email,
@@ -25,21 +25,21 @@ export default class UserService {
     }
 
     async deleteUser(id) {
-        return this.userDao.delete(id)
+        return this.userRepository.delete(id)
     }
 
     async findByIdentifier(identifier) {
         const looksLikeEmail = identifier.includes('@')
         if (looksLikeEmail) {
             const email = identifier.trim().toLowerCase()
-            return this.userDao.findByEmail(email)
+            return this.userRepository.findByEmail(email)
         } else {
             return null
         }
     }
 
     async updateProfile(id, patch) {
-        return this.userDao.updateById(id, patch)
+        return this.userRepository.updateById(id, patch)
     }
 
 

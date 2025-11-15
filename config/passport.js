@@ -2,9 +2,7 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import bcrypt from 'bcrypt';
-import UserDao from '../src/dao/user.dao.js';
-
-const userDao = new UserDao()
+import { userDao } from '../src/dao/index.js'
 
 export default function configurePassport() {
     passport.use('local', new LocalStrategy(

@@ -1,14 +1,9 @@
 import mongoose from 'mongoose'
 import express from 'express'
-import CartDao from '../dao/cart.dao.js'
-import CartService from '../services/cart.service.js'
-
-import UserDao from '../dao/user.dao.js'
+import { cartService } from '../services/index.js'
+import { userDao } from '../dao/index.js'
 
 const router = express.Router()
-const userDao = new UserDao()
-const cartDao = new CartDao()
-const service = new CartService(cartDao)
 
 router.post('/:cid/finalize', async (req, res, next) => {
   try {
@@ -20,7 +15,7 @@ router.post('/:cid/finalize', async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(cid)) {
       return res.status(404).json({ status: 'error', error: 'Carrito no encontrado' })
     }
-    const result = await service.finalizeCart(cid)
+    const result = await cartService.finalizeCart(cid)
     if (!result.ok) {
       return res.status(result.code).json({ status: 'error', error: result.msg })
     }
@@ -44,13 +39,13 @@ router.get('/current/id', async (req, res, next) => {
       cid = null
     }
     if (cid) {
-      const cart = await service.getCartByID(cid)   
+      const cart = await cartService.getCartByID(cid)   
       if (!cart || cart.status === 'closed') {
         cid = null
       }
     }
     if (!cid) {
-      const fresh = await service.createCart()
+      const fresh = await cartService.createCart()
       cid = fresh._id.toString()
       res.cookie('cartId', cid, {
         path: '/',
@@ -90,7 +85,7 @@ router.put('/:cid', async (req, res, next) => {
     if (!Array.isArray(products)) {
       return res.status(400).json({ status: 'error', error: 'products debe ser array' })
     }
-    const updated = await service.replaceAllProducts(req.params.cid, products)
+    const updated = await cartService.replaceAllProducts(req.params.cid, products)
     if (!updated) {
       return res.status(404).json({ status: 'error', error: 'Cart not found' })
     }
@@ -106,7 +101,7 @@ router.put('/:cid/products/:pid', async (req, res, next) => {
     if (!Number.isInteger(q) || q < 1) {
       return res.status(400).json({ status: 'error', error: 'quantity inválida' })
     }
-    const updated = await service.setProductQuantity(req.params.cid, req.params.pid, q)
+    const updated = await cartService.setProductQuantity(req.params.cid, req.params.pid, q)
     if (!updated) {
       return res.status(404).json({ status: 'error', error: 'Cart not found' })
     }
@@ -118,7 +113,7 @@ router.put('/:cid/products/:pid', async (req, res, next) => {
 
 router.delete('/:cid/products/:pid', async (req, res, next) => {
   try {
-    const updated = await service.removeProduct(req.params.cid, req.params.pid)
+    const updated = await cartService.removeProduct(req.params.cid, req.params.pid)
     if (!updated) {
       return res.status(404).json({ status: 'error', error: 'Cart not found' })
     }
@@ -130,7 +125,7 @@ router.delete('/:cid/products/:pid', async (req, res, next) => {
 
 router.delete('/:cid', async (req, res, next) => {
   try {
-    const updated = await service.emptyCart(req.params.cid)
+    const updated = await cartService.emptyCart(req.params.cid)
     if (!updated) {
       return res.status(404).json({ status: 'error', error: 'Cart not found' })
     }
