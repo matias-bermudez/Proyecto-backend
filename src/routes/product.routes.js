@@ -1,6 +1,7 @@
 import express from 'express'
 const router = express.Router()
-
+import { requireRole } from '../utils/middlewares/auth.js'
+import passport from 'passport'
 import ProductDao from '../dao/product.dao.js'
 import ProductService from '../services/product.service.js'
 import ProductController from '../controllers/product.controller.js'
@@ -23,8 +24,8 @@ router.get('/:id', async (req, res, next) => {
     }
 })
 
-router.post('/', controller.createProd)
-router.put('/:id', controller.updateProd)
-router.delete('/:id', controller.deleteProd)
+router.post('/', passport.authenticate('jwt', {session:false}), requireRole('admin'),controller.createProd)
+router.put('/:id', passport.authenticate('jwt', {session:false}), requireRole('admin'),controller.updateProd)
+router.delete('/:id', passport.authenticate('jwt', {session:false}), requireRole('admin'),controller.deleteProd)
 
 export default router

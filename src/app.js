@@ -7,10 +7,8 @@ import session from 'express-session';
 import cookieParser from "cookie-parser";
 import MongoStore from "connect-mongo";
 import passport from 'passport';
-
 import { paths } from '../config/config.js';
 import configurePassport from '../config/passport.js';
-
 import ProductDao from './dao/product.dao.js';
 import ProductService from './services/product.service.js';
 
@@ -18,6 +16,7 @@ import productRoutes from './routes/product.routes.js';
 import sessionRoutes from './routes/sessions.routes.js';
 import cartRoutes from './routes/cart.routes.js';
 import userRoutes from './routes/user.routes.js';
+import mailingRoutes from './routes/mailing.routes.js';
 
 import userViewRoutes from './routes/user.view.routes.js';
 import cartViewRoutes from './routes/cart.view.routes.js';
@@ -84,7 +83,7 @@ app.use('/api/products', productRoutes)
 app.use('/api/carts', cartRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/sessions', sessionRoutes)
-
+app.use('/api/mailing', mailingRoutes)
 //Vistas
 app.use('/carts', cartViewRoutes) 
 app.use('/products', productViewRoutes)
