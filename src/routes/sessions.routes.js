@@ -1,6 +1,7 @@
 import { Router } from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken";
+import { userToDto } from "../dto/user.dto.js";
 
 const router = Router()
 
@@ -20,7 +21,8 @@ router.post('/login', (req, res, next) => {
 })
 
 router.get('/current', passport.authenticate('jwt', { session: false }), (req, res) => {
-    return res.json({ status: 'success', payload: req.user })
+    let protectedUser = userToDto(req.user)
+    return res.json({ status: 'success', payload: protectedUser })
 })
 
 export default router
