@@ -33,7 +33,6 @@ export default class CartService {
     }
 
     async finalizeCart(cid) {
-        // this logic uses repo methods
         const cart = await this.cartRepo.getById(cid, { populated: false });
         if (!cart) {
         return { ok: false, code: 404, msg: 'Carrito no encontrado' };

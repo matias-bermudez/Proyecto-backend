@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 import express from 'express'
 import { cartService } from '../services/index.js'
 import { userDao } from '../dao/index.js'
+import { requireRole } from '../utils/middlewares/auth.js'
 
 const router = express.Router()
 
@@ -95,7 +96,7 @@ router.put('/:cid', async (req, res, next) => {
   }
 })
 
-router.put('/:cid/products/:pid', async (req, res, next) => {
+router.put('/:cid/products/:pid', requireRole('user'),async (req, res, next) => {
   try {
     const q = parseInt(req.body?.quantity)
     if (!Number.isInteger(q) || q < 1) {
@@ -111,7 +112,7 @@ router.put('/:cid/products/:pid', async (req, res, next) => {
   }
 })
 
-router.delete('/:cid/products/:pid', async (req, res, next) => {
+router.delete('/:cid/products/:pid', requireRole('user'),async (req, res, next) => {
   try {
     const updated = await cartService.removeProduct(req.params.cid, req.params.pid)
     if (!updated) {
