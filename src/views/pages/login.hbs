@@ -18,7 +18,7 @@
       <h2>Iniciar sesión</h2>
       <p class="muted">Podés usar <strong>email</strong> o <strong>nombre</strong> en el campo “Usuario”.</p>
 
-      <form method="POST" action="/api/users/login" autocomplete="on" novalidate>
+      <form method="POST" id="loginForm" autocomplete="on" novalidate>
         <div class="form-row">
           <label for="identifier">Usuario (email)</label>
           <input id="identifier" name="identifier" type="text" required placeholder="ej: example@example.com" />
@@ -217,38 +217,60 @@
 </style>
 
 <script>
-  const tabLogin = document.getElementById('tab-login');
-  const tabRegister = document.getElementById('tab-register');
-  const panelLogin = document.getElementById('panel-login');
-  const panelRegister = document.getElementById('panel-register');
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log('LOGIN SCRIPT: DOMContentLoaded');
 
-  function switchTab(tab) {
-    const loginActive = tab.id === 'tab-login';
-    tabLogin.classList.toggle('active', loginActive);
-    tabRegister.classList.toggle('active', !loginActive);
-    panelLogin.classList.toggle('active', loginActive);
-    panelRegister.classList.toggle('active', !loginActive);
-  }
+    const form = document.getElementById('loginForm');
+    console.log('LOGIN SCRIPT: form found?', !!form);
 
-  tabLogin?.addEventListener('click', () => switchTab(tabLogin));
-  tabRegister?.addEventListener('click', () => switchTab(tabRegister));
+    if (!form) return;
 
-  // Mostrar/ocultar contraseña
-  document.querySelectorAll('.toggle-pass').forEach(button => {
-    button.addEventListener('click', () => {
-      const input = document.querySelector(button.dataset.target);
-      if (!input) return;
-      input.type = input.type === 'password' ? 'text' : 'password';
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      console.log('LOGIN SCRIPT: submit intercepted');
+      const formData = new FormData(form);
+      const body = {};
+      formData.forEach((v, k) => body[k] = v);
+      console.log('LOGIN SCRIPT: payload', body);
+
+      try {
+        const res = await fetch('/api/sessions/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Create-Session': '1'
+          },
+          credentials: 'same-origin',
+          body: JSON.stringify(body)
+        });
+
+        const text = await res.text(); 
+        let data;
+        try { data = JSON.parse(text); } catch (e) { data = { raw: text }; }
+        console.log('LOGIN SCRIPT: response body', data);
+
+        if (!res.ok) {
+          alert(data.error || data.raw || 'Credenciales inválidas');
+          return;
+        }
+
+        // guardar token
+        const token = data.payload?.token;
+        if (token) localStorage.setItem('token', token);
+
+        // guardar usuario del payload
+        if (data.payload?.user) {
+          localStorage.setItem('user', JSON.stringify(data.payload.user));
+        }
+
+        // Redirigir a home
+        window.location.href = '/';
+      } catch (err) {
+        console.error('LOGIN SCRIPT: fetch error', err);
+        alert('Error de red. Intentá nuevamente.');
+      }
     });
   });
-
-  const regForm = document.querySelector('#panel-register form');
-  regForm?.addEventListener('submit', e => {
-    const pass = document.getElementById('reg_password').value;
-    const confirm = document.getElementById('confirm_password').value;
-    if (pass !== confirm) {
-      e.preventDefault();
-      alert('Las contraseñas no coinciden');
-    }
-  });
 </script>
+
