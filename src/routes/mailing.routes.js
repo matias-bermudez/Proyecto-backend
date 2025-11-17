@@ -55,11 +55,9 @@ router.post("/reset-password", async (req, res) => {
         return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
-    // Hashear nueva pass
     user.password = await bcrypt.hash(password, 10);
     await user.save();
 
-    // Eliminar token para qu no pueda usarse de nuevo
     await PasswordResetModel.deleteOne({ token });
 
     return res.redirect('/users/login');

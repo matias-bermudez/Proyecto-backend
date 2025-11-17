@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 import { UserModel } from '../db/models/user.model.js';
 
 function escapeRegex(str = '') {
-  // escapa caracteres especiales para usar en RegExp
   return String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
@@ -26,7 +25,7 @@ export default class UserDao {
       email,
       age,
       password,
-      carts = [], // usar 'carts' como array, por compatibilidad con el schema
+      carts = [],
       role
     } = user;
 
@@ -42,7 +41,6 @@ export default class UserDao {
       });
       return doc.toObject();
     } catch (err) {
-      // manejo básico de duplicate key (email único)
       if (err && err.code === 11000 && err.keyPattern && err.keyPattern.email) {
         const e = new Error('Email ya registrado');
         e.code = 11000;
@@ -71,7 +69,6 @@ export default class UserDao {
 
   async updateById(id, patch) {
     if (!mongoose.Types.ObjectId.isValid(id)) return null;
-    // opcional: eliminar campos que no querés permitir actualizar aquí
     const updated = await UserModel.findByIdAndUpdate(id, patch, {
       new: true,
       runValidators: true
