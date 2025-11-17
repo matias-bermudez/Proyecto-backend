@@ -1,6 +1,5 @@
 import bcrypt from 'bcrypt';
 import { userDao } from '../dao/index.js';
-import UserDao from '../dao/user.dao.js';
 export default class UserRepository {
     constructor() {
         this.dao = userDao || new userDao();

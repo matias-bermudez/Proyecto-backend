@@ -1,5 +1,7 @@
 import bcrypt from 'bcrypt';
 import { wantsHTML } from '../utils/wants.js';
+import jwt from 'jsonwebtoken';      
+import { userToDto } from '../dto/user.dto.js'; // <-- y el DTO
 
 export default class UserController {
     constructor(userService) {
@@ -98,52 +100,57 @@ export default class UserController {
     }
 
     loginUser = async (req, res, next) => {
-        try {
-            const { identifier , password, redirectTo } = req.body
-            if (!identifier  || !password) {
-                if (wantsHTML(req)) {
-                    return res.redirect('/users/login?error=Faltan%20credenciales')
-                } else {
-                    return res.status(400).json({ msj: 'Faltan datos' })
-                }
-            }
+  try {
+    console.log('loginUser: body=', req.body);
+    const { identifier , password, redirectTo } = req.body;
 
-            const user = await this.userService.findByIdentifier(identifier)
-            if (!user) {
-                if (wantsHTML(req)) {
-                    return res.redirect('/users/login?error=Credenciales%20inv%C3%A1lidas')
-                } else {
-                    return res.status(401).json({ status: 'error', error: 'Credenciales inválidas' })
-                }
-            }
+    // detectar si es llamada API
+    const isApi = req.headers.accept?.includes('application/json') || req.baseUrl?.startsWith('/api') || req.xhr;
 
-            const success = await bcrypt.compare(password, user.password)
-            if (!success) {
-                if (wantsHTML(req)) {
-                    return res.redirect('/users/login?error=Credenciales%20inv%C3%A1lidas')
-                } else {
-                    return res.status(401).json({ status: 'error', error: 'Credenciales inválidas' })
-                }
-            }
-
-            req.session.user = {
-                id: user._id.toString(),
-                first_name: user.first_name,
-                last_name: user.last_name,
-                email: user.email,
-                role: user.role,
-                cartId: user.cart ? user.cart.toString() : null
-            }
-
-            if (wantsHTML(req)) {
-                return res.redirect(redirectTo || '/')
-            } else {
-                return res.json({ status: 'success', payload: { user: req.session.user } })
-            }
-        } catch (err) {
-            next(err)
-        }
+    if (!identifier || !password) {
+      if (!isApi && wantsHTML(req)) return res.redirect('/users/login?error=Faltan%20credenciales');
+      return res.status(400).json({ status: 'error', error: 'Faltan datos' });
     }
+
+    const user = await this.userService.findByIdentifier(identifier);
+    if (!user) {
+      if (!isApi && wantsHTML(req)) return res.redirect('/users/login?error=Credenciales%20inv%C3%A1lidas');
+      return res.status(401).json({ status: 'error', error: 'Credenciales inválidas' });
+    }
+
+    const success = await bcrypt.compare(password, user.password);
+    if (!success) {
+      if (!isApi && wantsHTML(req)) return res.redirect('/users/login?error=Credenciales%20inv%C3%A1lidas');
+      return res.status(401).json({ status: 'error', error: 'Credenciales inválidas' });
+    }
+
+    // HTML flow -> sesión + redirect
+    if (!isApi && wantsHTML(req)) {
+      req.session.user = {
+        id: user._id.toString(),
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
+        role: user.role,
+        cartId: user.cart ? user.cart.toString() : null
+      };
+      return res.redirect(redirectTo || '/');
+    }
+
+    // API flow -> devolver JWT
+    const payload = { id: user._id.toString(), email: user.email, role: user.role };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '1h' });
+    const protectedUser = userToDto(user);
+
+    console.log('loginUser: login success for', user.email);
+    return res.json({ status: 'success', payload: { token, user: protectedUser } });
+  } catch (err) {
+    // loguear el error completo para debug
+    console.error('loginUser: error ->', err && err.stack ? err.stack : err);
+    next(err);
+  }
+};
+
 
     updateUser = async (req, res, next) => {
         try {
