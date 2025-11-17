@@ -48,9 +48,7 @@ export default class ProductController {
         const prevLink = hasPrevPage ? buildViewLink(prevPage) : null
         const nextLink = hasNextPage ? buildViewLink(nextPage) : null
 
-        //si es API (/api/products) devuelvo json
         if (req.baseUrl.startsWith('/api')) {
-          // para api armo links pegando a /api/products
           const buildApiLink = (targetPage) => {
             const url = new URL(req.protocol + '://' + req.get('host') + req.baseUrl)
             url.searchParams.set('limit', String(limit))

@@ -1,4 +1,3 @@
-//DB
 import { connectDB } from "./db/connect.js";
 import express from 'express';
 import handlebars from 'express-handlebars';
