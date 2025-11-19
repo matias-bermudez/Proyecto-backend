@@ -1,37 +1,51 @@
 import mongoose from 'mongoose'
 import express from 'express'
-import { cartService } from '../services/index.js'
-import { userDao } from '../dao/index.js'
 import { requireRole } from '../utils/middlewares/auth.js'
+import { purchaseService } from '../services/index.js';
+import { userDao } from '../dao/index.js';
+import { cartService } from '../services/index.js';
 
 const router = express.Router()
 
+
 router.post('/:cid/finalize', async (req, res, next) => {
   try {
-    const user = req.session?.user
-    if(!user) {
-      return res.redirect('/login')
+    const sessionUser = req.session?.user;
+    if (!sessionUser) {
+      const wantsHTML = (req.headers.accept || '').includes('text/html');
+      if (wantsHTML) {
+        return res.redirect('/users/login?error=auth');
+      } else {
+        return res.status(401).json({ status: 'error', error: 'No autenticado' });
+      }
     }
-    const { cid } = req.params
+
+    const { cid } = req.params;
     if (!mongoose.Types.ObjectId.isValid(cid)) {
-      return res.status(404).json({ status: 'error', error: 'Carrito no encontrado' })
-    }
-    const result = await cartService.finalizeCart(cid)
-    if (!result.ok) {
-      return res.status(result.code).json({ status: 'error', error: result.msg })
+      return res.status(404).json({ status: 'error', error: 'Carrito no válido' });
     }
 
-    await userDao.addCartToUser(user.id, cid)
-    res.setHeader(
-      'Set-Cookie',
-      `cartId=; Path=/; Max-Age=0`
-    )
+    const result = await purchaseService.finalizeCartPurchase(sessionUser.id, cid);
 
-    return res.json({ status: 'success', message: 'Compra finalizada' });
+    if (!result || (result.ticket === null && (!result.rejected || result.rejected.length === 0))) {
+      return res.status(400).json({ status: 'error', error: result?.message || 'No se pudo finalizar la compra' });
+    }
+
+    const newCart = await cartService.createCart();
+    await userDao.addCartToUser(sessionUser.id, newCart._id);
+    req.session.user.cartId = newCart._id.toString();
+
+    res.setHeader('Set-Cookie', `cartId=; Path=/; Max-Age=0`);
+
+    return res.json({
+      status: result.rejected && result.rejected.length ? 'partial' : 'success',
+      ticket: result.ticket || null,
+      rejected: result.rejected || []
+    });
   } catch (e) {
-    next(e)
+    next(e);
   }
-})
+});
 
 router.get('/current/id', async (req, res, next) => {
   try {
@@ -69,7 +83,7 @@ router.get('/:cid', async (req, res, next) => {
       return res.status(404).json({ status: 'error', error: 'Cart not found' })
     }
 
-    const cart = await service.getCartByID(cid, { populated: true })
+    const cart = await cartService.getCartByID(cid, { populated: true })
     if (!cart) {
       return res.status(404).json({ status: 'error', error: 'Cart not found' })
     }

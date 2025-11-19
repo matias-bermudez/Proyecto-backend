@@ -16,6 +16,7 @@ import sessionRoutes from './routes/sessions.routes.js';
 import cartRoutes from './routes/cart.routes.js';
 import userRoutes from './routes/user.routes.js';
 import mailingRoutes from './routes/mailing.routes.js';
+import purchaseRoutes from './routes/purchase.routes.js';
 
 import userViewRoutes from './routes/user.view.routes.js';
 import cartViewRoutes from './routes/cart.view.routes.js';
@@ -71,7 +72,7 @@ app.use(session({
 }))
 
 app.use((req, res, next) => {
-  res.locals.user = req.session?.user || null
+  res.locals.user = req.user || req.session?.user || null;
   next()
 })
 
@@ -81,6 +82,7 @@ app.use('/api/carts', cartRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/sessions', sessionRoutes)
 app.use('/api/mailing', mailingRoutes)
+app.use('/api/purchases', purchaseRoutes)
 //Vistas
 app.use('/carts', cartViewRoutes) 
 app.use('/products', productViewRoutes)

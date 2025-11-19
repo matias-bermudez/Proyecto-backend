@@ -220,11 +220,49 @@
   document.addEventListener('DOMContentLoaded', () => {
     console.log('LOGIN SCRIPT: DOMContentLoaded');
 
+      // ---- TABS (Login / Register) ----
+    const tabLogin = document.getElementById('tab-login');
+    const tabRegister = document.getElementById('tab-register');
+    const panelLogin = document.getElementById('panel-login');
+    const panelRegister = document.getElementById('panel-register');
+
+    function switchTab(tab) {
+      const loginActive = tab.id === 'tab-login';
+      tabLogin.classList.toggle('active', loginActive);
+      tabRegister.classList.toggle('active', !loginActive);
+      panelLogin.classList.toggle('active', loginActive);
+      panelRegister.classList.toggle('active', !loginActive);
+    }
+
+    tabLogin?.addEventListener('click', () => switchTab(tabLogin));
+    tabRegister?.addEventListener('click', () => switchTab(tabRegister));
+
+    document.querySelectorAll('.toggle-pass').forEach(button => {
+      button.addEventListener('click', () => {
+        const input = document.querySelector(button.dataset.target);
+        if (!input) return;
+        input.type = input.type === 'password' ? 'text' : 'password';
+      });
+    });
+
+    const regForm = document.querySelector('#panel-register form');
+    regForm?.addEventListener('submit', (e) => {
+      const passEl = document.getElementById('reg_password');
+      const confEl = document.getElementById('confirm_password');
+      if (!passEl || !confEl) return;
+      const pass = passEl.value;
+      const confirm = confEl.value;
+      if (pass !== confirm) {
+        e.preventDefault();
+        alert('Las contraseñas no coinciden');
+        confEl.focus();
+      }
+    });
+
+    // login submit
     const form = document.getElementById('loginForm');
     console.log('LOGIN SCRIPT: form found?', !!form);
-
     if (!form) return;
-
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       console.log('LOGIN SCRIPT: submit intercepted');
@@ -271,6 +309,7 @@
         alert('Error de red. Intentá nuevamente.');
       }
     });
+    
   });
 </script>
 

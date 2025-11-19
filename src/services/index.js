@@ -13,4 +13,4 @@ import {
 export const userService     = new UserService(userRepository);
 export const productService  = new ProductService(productRepository);
 export const cartService     = new CartService(cartRepository);
-export const purchaseService = new PurchaseService({ cartRepository, ticketRepository, productRepository });
+export const purchaseService = new PurchaseService({ cartRepository, ticketRepository, productRepository, userRepository });
