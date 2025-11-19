@@ -16,7 +16,6 @@ export default class ProductService {
     }
 
     async createProd(data) {
-        // delega validaciones de negocio al repository
         return this.productRepository.createProduct(data);
     }
 
